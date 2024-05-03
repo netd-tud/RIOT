@@ -2129,3 +2129,97 @@ psa_status_t psa_verify_message(psa_key_id_t key,
     return ((status == PSA_SUCCESS) ? unlock_status : status);
 }
 #endif /* MODULE_PSA_ASYMMETRIC */
+
+#if IS_USED(MODULE_PSA_MAC_HMAC)
+psa_status_t psa_mac_compute_hmac(const psa_algorithm_t alg,
+                                  const psa_key_attributes_t *attributes,
+                                  const uint8_t *key_buffer,
+                                  size_t key_buffer_size,
+                                  const uint8_t *input,
+                                  size_t input_length,
+                                  uint8_t *mac,
+                                  size_t mac_size,
+                                  size_t *mac_length)
+{
+    unsigned char k[PSA_HASH_MAX_BLOCK_LENGTH] = { 0 }; // TODO
+    unsigned char key_ipad[PSA_HASH_MAX_BLOCK_LENGTH];  // TODO
+    unsigned char key_opad[PSA_HASH_MAX_BLOCK_LENGTH];  // TODO
+    unsigned char out[PSA_HASH_MAX_LENGTH];             // TODO
+    psa_hash_operation_t op = PSA_HASH_OPERATION_INIT;
+    psa_status_t status;
+    size_t block_length;
+    size_t out_length;
+    size_t dummy;
+
+    block_length = PSA_HASH_BLOCK_LENGTH(alg);
+    if (!block_length) {
+        return PSA_ERROR_NOT_SUPPORTED,
+    }
+
+    if (key_buffer_size > block_length) {
+        status = psa_hash_compute(alg, key_buffer, key_buffer_size, k,
+                                  sizeof(k), &dummy);
+        if (status != PSA_SUCCESS) {
+            return status;
+        }
+    } else {
+         memcpy(k, key_buffer, key_buffer_size);
+    }
+
+    for (size_t i = 0; i < block_length; i++) {
+        key_opad[i] = 0x5c ^ k[i];
+        key_ipad[i] = 0x36 ^ k[i];
+    }
+
+    // First hashing with ipad
+
+    status = psa_hash_setup(&op, alg);
+    if (status != PSA_SUCCESS)
+        return status;
+
+    status = psa_hash_update(&op, key_ipad, block_length);
+    if (status != PSA_SUCCESS) {
+        psa_hash_abort(&op);
+        return status;
+    }
+
+    status = psa_hash_update(&op, input, input_length);
+    if (status != PSA_SUCCESS) {
+        psa_hash_abort(&op);
+        return status;
+    }
+
+    status = psa_hash_finish(&op, out, sizeof(out), &out_length);
+    if (status != PSA_SUCCESS) {
+        psa_hash_abort(&op);
+        return status;
+    }
+
+    // Second hashing with opad
+
+    status = psa_hash_setup(&op, alg);
+    if (status != PSA_SUCCESS)
+        return status;
+
+    status = psa_hash_update(&op, key_opad, block_length);
+    if (status != PSA_SUCCESS) {
+        psa_hash_abort(&op);
+        return status;
+    }
+
+    status = psa_hash_update(&op, out, out_length);
+    if (status != PSA_SUCCESS) {
+        psa_hash_abort(&op);
+        return status;
+    }
+
+    status = psa_hash_finish(&op, mac, mac_size, &mac_length);
+    if (status != PSA_SUCCESS) {
+        psa_hash_abort(&op);
+        return status;
+    }
+
+    (void)attributes;
+    return PSA_SUCCESS;
+}
+#endif /* MODULE_PSA_MAC_HMAC */
