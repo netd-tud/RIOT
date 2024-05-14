@@ -210,7 +210,9 @@ static inline struct psa_hash_operation_s psa_hash_operation_init(void)
  * @note    Not yet implemented
  */
 struct psa_mac_operation_s {
-    int dummy;  /**< Not yet implemented */
+    psa_algorithm_t alg;                /**< Operation algorithm*/
+    psa_hash_operation_t hash;          /**< Hash context*/
+    psa_mac_block_buffer_t block;      /**<Block buffer*/
 };
 
 /**

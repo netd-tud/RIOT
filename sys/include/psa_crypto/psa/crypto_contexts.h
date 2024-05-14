@@ -52,6 +52,110 @@ typedef union {
 } psa_hash_context_t;
 #endif
 
+#if IS_USED(MODULE_PSA_MAC)
+/**
+ * @brief   Structure containing the hash block buffer needed by the mac.
+ */
+typedef union {
+#if IS_USED(MODULE_PSA_HASH_MD2) || defined(DOXYGEN)
+    unsigned char md2[PSA_HASH_BLOCK_LENGTH(PSA_ALG_MD2)];   /**< MD2 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_MD4) || defined(DOXYGEN)
+    unsigned char md4[PSA_HASH_BLOCK_LENGTH(PSA_ALG_MD4)];   /**< MD4 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_MD5) || defined(DOXYGEN)
+    unsigned char md5[PSA_HASH_BLOCK_LENGTH(PSA_ALG_MD5)];   /**< MD5 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_RIPEMD160) || defined(DOXYGEN)
+    unsigned char ripdemd160[PSA_HASH_BLOCK_LENGTH(PSA_ALG_RIPEMD160)];   /**< RIPEMD160 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_SHA_1) || defined(DOXYGEN)
+    unsigned char sha1[PSA_HASH_BLOCK_LENGTH(PSA_ALG_SHA_1)];   /**< SHA1 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_SHA_224) || defined(DOXYGEN)
+    unsigned char sha224[PSA_HASH_BLOCK_LENGTH(PSA_ALG_SHA_224)];   /**< SHA224 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_SHA_256) || defined(DOXYGEN)
+    unsigned char sha256[PSA_HASH_BLOCK_LENGTH(PSA_ALG_SHA_256)];   /**< SHA256 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_SHA_384) || defined(DOXYGEN)
+    unsigned char sha384[PSA_HASH_BLOCK_LENGTH(PSA_ALG_SHA_384)];   /**< SHA384 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_SHA_512) || defined(DOXYGEN)
+    unsigned char sha512[PSA_HASH_BLOCK_LENGTH(PSA_ALG_SHA_512)];   /**< SHA512 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_SHA_512_224) || defined(DOXYGEN)
+    unsigned char sha512_224[PSA_HASH_BLOCK_LENGTH(PSA_ALG_SHA_512_224)];   /**< SHA512-224 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_SHA_512_256) || defined(DOXYGEN)
+    unsigned char sha512_256[PSA_HASH_BLOCK_LENGTH(PSA_ALG_SHA_512_256)];   /**< SHA512-256 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_SHA3_224) || defined(DOXYGEN)
+    unsigned char sha3_224[PSA_HASH_BLOCK_LENGTH(PSA_ALG_SHA3_224)];   /**< SHA3-224 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_SHA3_256) || defined(DOXYGEN)
+    unsigned char sha3_256[PSA_HASH_BLOCK_LENGTH(PSA_ALG_SHA3_256)];   /**< SHA3-256 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_SHA3_384) || defined(DOXYGEN)
+    unsigned char sha3_384[PSA_HASH_BLOCK_LENGTH(PSA_ALG_SHA3_384)];   /**< SHA3-384 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_SHA3_512) || defined(DOXYGEN)
+    unsigned char sha3_512[PSA_HASH_BLOCK_LENGTH(PSA_ALG_SHA3_512)];   /**< SHA3-512 buffer */
+#endif
+} psa_mac_block_buffer_t;
+
+/**
+ * @brief   Structure containing the hash buffer needed by the mac.
+ */
+typedef union {
+#if IS_USED(MODULE_PSA_HASH_MD2) || defined(DOXYGEN)
+    unsigned char md2[PSA_HASH_LENGTH(PSA_ALG_MD2)];   /**< MD2 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_MD4) || defined(DOXYGEN)
+    unsigned char md4[PSA_HASH_LENGTH(PSA_ALG_MD4)];   /**< MD4 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_MD5) || defined(DOXYGEN)
+    unsigned char md5[PSA_HASH_LENGTH(PSA_ALG_MD5)];   /**< MD5 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_RIPEMD160) || defined(DOXYGEN)
+    unsigned char ripdemd160[PSA_HASH_LENGTH(PSA_ALG_RIPEMD160)];   /**< RIPEMD160 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_SHA_1) || defined(DOXYGEN)
+    unsigned char sha1[PSA_HASH_LENGTH(PSA_ALG_SHA_1)];   /**< SHA1 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_SHA_224) || defined(DOXYGEN)
+    unsigned char sha224[PSA_HASH_LENGTH(PSA_ALG_SHA_224)];   /**< SHA224 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_SHA_256) || defined(DOXYGEN)
+    unsigned char sha256[PSA_HASH_LENGTH(PSA_ALG_SHA_256)];   /**< SHA256 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_SHA_384) || defined(DOXYGEN)
+    unsigned char sha384[PSA_HASH_LENGTH(PSA_ALG_SHA_384)];   /**< SHA384 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_SHA_512) || defined(DOXYGEN)
+    unsigned char sha512[PSA_HASH_LENGTH(PSA_ALG_SHA_512)];   /**< SHA512 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_SHA_512_224) || defined(DOXYGEN)
+    unsigned char sha512_224[PSA_HASH_LENGTH(PSA_ALG_SHA_512_224)];   /**< SHA512-224 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_SHA_512_256) || defined(DOXYGEN)
+    unsigned char sha512_256[PSA_HASH_LENGTH(PSA_ALG_SHA_512_256)];   /**< SHA512-256 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_SHA3_224) || defined(DOXYGEN)
+    unsigned char sha3_224[PSA_HASH_LENGTH(PSA_ALG_SHA3_224)];   /**< SHA3-224 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_SHA3_256) || defined(DOXYGEN)
+    unsigned char sha3_256[PSA_HASH_LENGTH(PSA_ALG_SHA3_256)];   /**< SHA3-256 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_SHA3_384) || defined(DOXYGEN)
+    unsigned char sha3_384[PSA_HASH_LENGTH(PSA_ALG_SHA3_384)];   /**< SHA3-384 buffer */
+#endif
+#if IS_USED(MODULE_PSA_HASH_SHA3_512) || defined(DOXYGEN)
+    unsigned char sha3_512[PSA_HASH_LENGTH(PSA_ALG_SHA3_512)];   /**< SHA3-512 buffer */
+#endif
+} psa_mac_hash_buffer_t;
+#endif
+
 #if IS_USED(MODULE_PSA_CIPHER)
 /**
  * @brief   Structure containing the cipher contexts needed by the application.
