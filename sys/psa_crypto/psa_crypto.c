@@ -1814,36 +1814,112 @@ psa_status_t psa_mac_compute(psa_key_id_t key,
 
 }
 
+static psa_status_t psa_mac_finish(psa_mac_operation_t *operation,
+                                   uint8_t *buffer,
+                                   size_t buffer_size)
+{
+    psa_algorithm_t hash_algo;
+    psa_status_t status;
+    size_t block_length;
+    size_t hash_length;
+
+    status = psa_hash_finish(&operation->hash, buffer, buffer_size, &hash_length);
+    if (status != PSA_SUCCESS) {
+        return status;
+    }
+
+    hash_algo = PSA_ALG_GET_HASH(alg);
+    block_length = PSA_HASH_BLOCK_LENGTH(hash_algo);
+
+    for (size_t i = 0; i < block_length; i++) {
+        operation->block[i] = operation->block[i] ^ 0x5c;
+    }
+
+    status = psa_hash_setup(&operation->hash, hash_algo);
+    if (status != PSA_SUCCESS) {
+        return status;
+    }
+
+    status = psa_hash_update(&operation->hash, &operation->block, block_length);
+    if (status != PSA_SUCCESS) {
+        return status;
+    }
+
+    status = psa_hash_update(&operation->hash, buffer, hash_length);
+    if (status != PSA_SUCCESS) {
+        return status;
+    }
+
+    return PSA_SUCCESS;
+}
+
 psa_status_t psa_mac_sign_finish(psa_mac_operation_t *operation,
                                  uint8_t *mac,
                                  size_t mac_size,
                                  size_t *mac_length)
 {
-    (void)operation;
-    (void)mac;
-    (void)mac_size;
-    (void)mac_length;
-    return PSA_ERROR_NOT_SUPPORTED;
+    psa_status_t status;
+
+    status = psa_mac_finish(operation, mac, mac_size);
+    if (status != PSA_SUCCESS) {
+        return status;
+    }
+
+    return psa_hash_finish(&operation->hash, mac, mac_size, mac_length);
 }
 
 psa_status_t psa_mac_sign_setup(psa_mac_operation_t *operation,
                                 psa_key_id_t key,
                                 psa_algorithm_t alg)
 {
-    (void)operation;
-    (void)key;
-    (void)alg;
-    return PSA_ERROR_NOT_SUPPORTED;
+    psa_algorithm_t hash_algo;
+    pas_status_t status;
+    size_t block_length;
+
+    if (!PSA_ALG_IS_HMAC(alg)) {
+        return PSA_ERROR_NOT_SUPPORTED;
+    }
+
+    hash_algo = PSA_ALG_GET_HASH(alg);
+    block_length = PSA_HASH_BLOCK_LENGTH(hash_algo);
+    if (!block_length) {
+        return PSA_ERROR_NOT_SUPPORTED;
+    }
+
+    operation->alg = alg;
+    status = psa_hash_setup(&operation->hash, hash_algo);
+    if (status != PSA_SUCCESS) {
+        return status;
+    }
+
+    status = psa_mac_setup_key(operation, key);
+    if (status != PSA_SUCCESS) {
+        psa_hash_abort(&operation->hash);
+        return status;
+    }
+
+    for (size_t i = 0; i < block_length; i++) {
+        operation->block[i] = operation->block[i] ^ 0x36;
+    }
+
+    status = psa_hash_update(&operation->hash, &operation->block, block_length);
+    if (status != PSA_SUCCESS) {
+        psa_hash_abort(&operation->hash);
+        return status;
+    }
+
+    for (size_t i = 0; i < block_length; i++) {
+        operation->block[i] = operation->block[i] ^ 0x36;
+    }
+
+    return PSA_SUCCESS;
 }
 
 psa_status_t psa_mac_update(psa_mac_operation_t *operation,
                             const uint8_t *input,
                             size_t input_length)
 {
-    (void)operation;
-    (void)input;
-    (void)input_length;
-    return PSA_ERROR_NOT_SUPPORTED;
+    return psa_hash_update(&operation->hash, input, input_length);
 }
 
 psa_status_t psa_mac_verify(psa_key_id_t key,
@@ -1853,33 +1929,29 @@ psa_status_t psa_mac_verify(psa_key_id_t key,
                             const uint8_t *mac,
                             size_t mac_length)
 {
-    (void)key;
-    (void)alg;
-    (void)input;
-    (void)input_length;
-    (void)mac;
-    (void)mac_length;
-    return PSA_ERROR_NOT_SUPPORTED;
+    return psa_location_dispatch_mac_verify(key, alg, input, input_length, mac, mac_length);
 }
 
 psa_status_t psa_mac_verify_finish(psa_mac_operation_t *operation,
                                    const uint8_t *mac,
                                    size_t mac_length)
 {
-    (void)operation;
-    (void)mac;
-    (void)mac_length;
-    return PSA_ERROR_NOT_SUPPORTED;
+    psa_mac_hash_buffer_t hash;
+    psa_status_t status;
+
+    status = psa_mac_finish(operation, &hash, sizeof(hash));
+    if (status != PSA_SUCCESS) {
+        return status;
+    }
+
+    return psa_hash_verify(&operation->hash, mac, mac_size);
 }
 
 psa_status_t psa_mac_verify_setup(psa_mac_operation_t *operation,
                                   psa_key_id_t key,
                                   psa_algorithm_t alg)
 {
-    (void)operation;
-    (void)key;
-    (void)alg;
-    return PSA_ERROR_NOT_SUPPORTED;
+    return psa_mac_sign_setup(operation, key, alg);
 }
 
 psa_status_t psa_purge_key(psa_key_id_t key)
