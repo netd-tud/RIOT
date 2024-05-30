@@ -86,6 +86,19 @@ void cpu_init(void)
 
     /* trigger static peripheral initialization */
     periph_init();
+
+// valid for nrf52840dk, see RIOT/dist/tools/nrf52_resetpin_cfg/Makefile
+#define RESET_PIN 18
+    if (((NRF_UICR->PSELRESET[0] & UICR_PSELRESET_CONNECT_Msk) != (UICR_PSELRESET_CONNECT_Connected << UICR_PSELRESET_CONNECT_Pos)) ||
+        ((NRF_UICR->PSELRESET[1] & UICR_PSELRESET_CONNECT_Msk) != (UICR_PSELRESET_CONNECT_Connected << UICR_PSELRESET_CONNECT_Pos))){
+        NRF_NVMC->CONFIG = NVMC_CONFIG_WEN_Wen;
+        while (NRF_NVMC->READY == NVMC_READY_READY_Busy) {}
+        NRF_UICR->PSELRESET[0] = RESET_PIN;
+        NRF_UICR->PSELRESET[1] = RESET_PIN;
+        while (NRF_NVMC->READY == NVMC_READY_READY_Busy) {}
+        NRF_NVMC->CONFIG = NVMC_CONFIG_WEN_Ren;
+        NVIC_SystemReset();
+    }
 }
 
 /**
