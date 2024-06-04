@@ -20,6 +20,7 @@
 #include "fmt.h"
 #include "od.h"
 #include "shell.h"
+#include "thread.h"
 
 #include "net/dns/cbor.h"
 
@@ -268,18 +269,71 @@ static int _parse(int argc, char **argv)
     return 0;
 }
 
+static kernel_pid_t _command_runner_pid;
+
+typedef struct {
+    int (*func)(int argc, char **argv);
+    int argc;
+    char **argv;
+} _command_t;
+
+static void *_command_runner(void *arg)
+{
+    (void)arg;
+    while (1) {
+        static _command_t *cmd;
+        static msg_t msg, reply;
+
+        msg_receive(&msg);
+        cmd = msg.content.ptr;
+        reply.content.value = (uint32_t)cmd->func(cmd->argc, cmd->argv);
+        msg_reply(&msg, &reply);
+    }
+    return NULL;
+}
+
+int _compose_main(int argc, char **argv)
+{
+    _command_t cmd = {
+        .func = _compose,
+        .argc = argc,
+        .argv = argv,
+    };
+    msg_t reply = { .type = 0 }, msg = { .content = { .ptr = &cmd } };
+    msg_send_receive(&msg, &reply, _command_runner_pid);
+    return (int)reply.content.value;
+}
+
+int _parse_main(int argc, char **argv)
+{
+    _command_t cmd = {
+        .func = _parse,
+        .argc = argc,
+        .argv = argv,
+    };
+    msg_t reply = { .type = 0 }, msg = { .content = { .ptr = &cmd } };
+    msg_send_receive(&msg, &reply, _command_runner_pid);
+    return (int)reply.content.value;
+}
+
 SHELL_COMMAND(error_codes, "Output error codes for this test\n", _error_codes);
 SHELL_COMMAND(load, "Load hex string consecutive into buffer\n", _load);
 SHELL_COMMAND(set_status, "Set parsing status\n", _set_status);
 SHELL_COMMAND(reset, "Reset buffer and parsing status\n", _reset_cmd);
 SHELL_COMMAND(dump, "Dump buffer and parsing status\n", _dump);
-SHELL_COMMAND(compose, "Compose query (calls reset before)\n", _compose);
-SHELL_COMMAND(parse, "Parse response in buffer with parsing status\n", _parse);
+SHELL_COMMAND(compose, "Compose query (calls reset before)\n", _compose_main);
+SHELL_COMMAND(parse, "Parse response in buffer with parsing status\n", _parse_main);
+
+static char _command_runner_stack[THREAD_STACKSIZE_DEFAULT];
 
 int main(void)
 {
     char line_buf[SHELL_DEFAULT_BUFSIZE];
 
+    _command_runner_pid = thread_create(
+        _command_runner_stack, sizeof(_command_runner_stack), THREAD_PRIORITY_MAIN - 1,
+        THREAD_CREATE_STACKTEST, _command_runner, NULL, "command_runner"
+    );
     shell_run(NULL, line_buf, sizeof(line_buf));
     return 0;
 }

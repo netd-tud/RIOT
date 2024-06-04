@@ -8,7 +8,9 @@
 
 import ipaddress
 import os
+import pathlib
 import sys
+import time
 import unittest
 
 import cbor2
@@ -19,6 +21,7 @@ __author__ = "Martine S. Lenders <martine.lenders@tu-dresden.de>"
 
 
 DEBUG = int(os.environ.get("TEST_DEBUG", 0))
+OUTPUT_CSV = None
 
 
 class TestSelf(PexpectTestCase):
@@ -191,6 +194,24 @@ class HasErrorCodes(PexpectTestCase):
 class TestCompose(HasErrorCodes):
     LOGFILE = sys.stdout if DEBUG else None
 
+    def setUp(self):
+        self.spawn.sendline("ps")
+        res = self.spawn.expect(
+            r"\|\s+command_runner\s+\|[^|]+\|[^|]+\|\s+(\d+)\s+\(\s+(\d+)\)\s+\(\s+(\d+)\)\s+\|"
+        )
+        print(
+            time.time(),
+            "compose",
+            self._testMethodName,
+            "setup",
+            self.spawn.match[1],
+            self.spawn.match[2],
+            self.spawn.match[3],
+            sep=",",
+            file=OUTPUT_CSV,
+        )
+        super().setUp()
+
     def compose(self, domain_name, typ=28, cls=1):
         self.spawn.sendline(f'compose "{domain_name}" {typ} {cls}')
 
@@ -211,6 +232,21 @@ class TestCompose(HasErrorCodes):
         self.spawn.expect_exact(f"  class: {obj['question']['class']}")
 
     def tearDown(self):
+        self.spawn.sendline("ps")
+        res = self.spawn.expect(
+            r"\|\s+command_runner\s+\|[^|]+\|[^|]+\|\s+(\d+)\s+\(\s+(\d+)\)\s+\(\s+(\d+)\)\s+\|"
+        )
+        print(
+            time.time(),
+            "compose",
+            self._testMethodName,
+            "teardown",
+            self.spawn.match[1],
+            self.spawn.match[2],
+            self.spawn.match[3],
+            sep=",",
+            file=OUTPUT_CSV,
+        )
         self.spawn.sendline("reset")
 
     def test_empty_AAAA(self):
@@ -257,6 +293,24 @@ class TestCompose(HasErrorCodes):
 class TestParse(HasErrorCodes):
     LOGFILE = sys.stdout if DEBUG else None
 
+    def setUp(self):
+        self.spawn.sendline("ps")
+        res = self.spawn.expect(
+            r"\|\s+command_runner\s+\|[^|]+\|[^|]+\|\s+(\d+)\s+\(\s+(\d+)\)\s+\(\s+(\d+)\)\s+\|"
+        )
+        print(
+            time.time(),
+            "parse",
+            self._testMethodName,
+            "setup",
+            self.spawn.match[1],
+            self.spawn.match[2],
+            self.spawn.match[3],
+            sep=",",
+            file=OUTPUT_CSV,
+        )
+        super().setUp()
+
     def expect_buffer(self, byts):
         for i in range(0, len(byts), 16):
             self.spawn.expect_exact(
@@ -298,6 +352,21 @@ class TestParse(HasErrorCodes):
         self.spawn.sendline("dump")
 
     def tearDown(self):
+        self.spawn.sendline("ps")
+        res = self.spawn.expect(
+            r"\|\s+command_runner\s+\|[^|]+\|[^|]+\|\s+(\d+)\s+\(\s+(\d+)\)\s+\(\s+(\d+)\)\s+\|"
+        )
+        print(
+            time.time(),
+            "parse",
+            self._testMethodName,
+            "teardown",
+            self.spawn.match[1],
+            self.spawn.match[2],
+            self.spawn.match[3],
+            sep=",",
+            file=OUTPUT_CSV,
+        )
         self.spawn.sendline("reset")
 
     def test_empty_response(self):
@@ -1221,4 +1290,7 @@ class TestParse(HasErrorCodes):
 
 
 if __name__ == "__main__":
-    unittest.main(verbosity=2)
+    with open(pathlib.Path.cwd() / "stack_usage.csv", "wt") as f:
+        OUTPUT_CSV = f
+        unittest.main(verbosity=2)
+    OUTPUT_CSV = None
