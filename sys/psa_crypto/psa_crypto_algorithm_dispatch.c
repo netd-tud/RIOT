@@ -24,6 +24,7 @@
 
 #if IS_USED(MODULE_PSA_MAC)
 #include "psa_mac.h"
+#include "psa_hmac.h"
 #endif
 
 #if IS_USED(MODULE_PSA_HASH)
@@ -683,11 +684,42 @@ psa_status_t psa_algorithm_dispatch_mac_sign_setup(psa_mac_operation_t *operatio
                                                    const psa_key_slot_t *slot,
                                                    psa_algorithm_t alg)
 {
-    (void)operation;
     (void)attributes;
-    (void)slot;
-    (void)alg;
-    return PSA_ERROR_NOT_SUPPORTED;
+    uint8_t *key_data;
+    size_t *key_bytes;
+
+    psa_get_key_data_from_key_slot(slot, &key_data, &key_bytes);
+
+    switch (alg) {
+#if IS_USED(MODULE_PSA_MAC_HMAC_MD5) && IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+    case PSA_ALG_HMAC(PSA_ALG_MD5):
+        return psa_hmac_setup(operation, key_data, *key_bytes, alg);
+#endif
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA_1) && IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+    case PSA_ALG_HMAC(PSA_ALG_SHA_1):
+        return psa_hmac_setup(operation, key_data, *key_bytes, alg);
+#endif
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA_224) && IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+    case PSA_ALG_HMAC(PSA_ALG_SHA_224):
+        return psa_hmac_setup(operation, key_data, *key_bytes, alg);
+#endif
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA_256) && IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+    case PSA_ALG_HMAC(PSA_ALG_SHA_256):
+        return psa_hmac_setup(operation, key_data, *key_bytes, alg);
+#endif
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA_384) && IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+    case PSA_ALG_HMAC(PSA_ALG_SHA_384):
+        return psa_hmac_setup(operation, key_data, *key_bytes, alg);
+#endif
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA_512) && IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+    case PSA_ALG_HMAC(PSA_ALG_SHA_512):
+        return psa_hmac_setup(operation, key_data, *key_bytes, alg);
+#endif
+    default:
+        (void)operation;
+        (void)alg;
+        return PSA_ERROR_NOT_SUPPORTED;
+    }
 }
 
 psa_status_t psa_algorithm_dispatch_mac_verify_setup(psa_mac_operation_t *operation,
@@ -695,17 +727,52 @@ psa_status_t psa_algorithm_dispatch_mac_verify_setup(psa_mac_operation_t *operat
                                                      const psa_key_slot_t *slot,
                                                      psa_algorithm_t alg)
 {
-    (void)operation;
     (void)attributes;
-    (void)slot;
-    (void)alg;
-    return PSA_ERROR_NOT_SUPPORTED;
+    uint8_t *key_data;
+    size_t *key_bytes;
+
+    psa_get_key_data_from_key_slot(slot, &key_data, &key_bytes);
+
+    switch (alg) {
+#if IS_USED(MODULE_PSA_MAC_HMAC_MD5) && IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+    case PSA_ALG_HMAC(PSA_ALG_MD5):
+        return psa_hmac_setup(operation, key_data, *key_bytes, alg);
+#endif
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA_1) && IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+    case PSA_ALG_HMAC(PSA_ALG_SHA_1):
+        return psa_hmac_setup(operation, key_data, *key_bytes, alg);
+#endif
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA_224) && IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+    case PSA_ALG_HMAC(PSA_ALG_SHA_224):
+        return psa_hmac_setup(operation, key_data, *key_bytes, alg);
+#endif
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA_256) && IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+    case PSA_ALG_HMAC(PSA_ALG_SHA_256):
+        return psa_hmac_setup(operation, key_data, *key_bytes, alg);
+#endif
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA_384) && IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+    case PSA_ALG_HMAC(PSA_ALG_SHA_384):
+        return psa_hmac_setup(operation, key_data, *key_bytes, alg);
+#endif
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA_512) && IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+    case PSA_ALG_HMAC(PSA_ALG_SHA_512):
+        return psa_hmac_setup(operation, key_data, *key_bytes, alg);
+#endif
+    default:
+        (void)operation;
+        (void)alg;
+        return PSA_ERROR_NOT_SUPPORTED;
+    }
 }
 
 psa_status_t psa_algorithm_dispatch_mac_update(psa_mac_operation_t *operation,
                                                const uint8_t *input,
                                                size_t input_length)
 {
+    #if IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+    return psa_hmac_update(operation, input, input_length);
+    #endif
+
     (void)operation;
     (void)input;
     (void)input_length;
@@ -717,6 +784,10 @@ psa_status_t psa_algorithm_dispatch_mac_sign_finish(psa_mac_operation_t *operati
                                                     size_t mac_size,
                                                     size_t *mac_length)
 {
+    #if IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+    return psa_hmac_sign_finish(operation, mac, mac_size, mac_length);
+    #endif
+
     (void)operation;
     (void)mac;
     (void)mac_size;
@@ -728,6 +799,10 @@ psa_status_t psa_algorithm_dispatch_mac_verify_finish(psa_mac_operation_t *opera
                                                       const uint8_t *mac,
                                                       size_t mac_length)
 {
+    #if IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+    return psa_hmac_verify_finish(operation, mac, mac_length);
+    #endif
+
     (void)operation;
     (void)mac;
     (void)mac_length;
@@ -736,6 +811,10 @@ psa_status_t psa_algorithm_dispatch_mac_verify_finish(psa_mac_operation_t *opera
 
 psa_status_t psa_algorithm_dispatch_mac_abort(psa_mac_operation_t *operation)
 {
+    #if IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+    return psa_hmac_abort(operation);
+    #endif
+
     (void)operation;
     return PSA_ERROR_NOT_SUPPORTED;
 }
