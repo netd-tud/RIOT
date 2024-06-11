@@ -124,6 +124,7 @@ psa_status_t psa_location_dispatch_verify_message(const psa_key_attributes_t *at
  * @brief   Dispatch call of a mac computation function to a location-specific backend.
  *          See @ref psa_mac_compute()
  *
+ * @param key
  * @param attributes
  * @param alg
  * @param slot
@@ -134,7 +135,8 @@ psa_status_t psa_location_dispatch_verify_message(const psa_key_attributes_t *at
  * @param mac_length
  * @return psa_status_t
  */
-psa_status_t psa_location_dispatch_mac_compute(const psa_key_attributes_t *attributes,
+psa_status_t psa_location_dispatch_mac_compute(const psa_key_id_t key,
+                                               const psa_key_attributes_t *attributes,
                                                psa_algorithm_t alg,
                                                const psa_key_slot_t *slot,
                                                const uint8_t *input,

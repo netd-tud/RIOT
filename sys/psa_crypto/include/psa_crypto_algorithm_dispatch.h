@@ -245,6 +245,7 @@ psa_status_t psa_algorithm_dispatch_cipher_decrypt( const psa_key_attributes_t *
  * @brief   Dispatch a mac computation function to a specific backend.
  *          See @ref psa_mac_compute()
  *
+ * @param key
  * @param attributes
  * @param alg
  * @param slot
@@ -255,7 +256,8 @@ psa_status_t psa_algorithm_dispatch_cipher_decrypt( const psa_key_attributes_t *
  * @param mac_length
  * @return @ref psa_status_t
  */
-psa_status_t psa_algorithm_dispatch_mac_compute(const psa_key_attributes_t *attributes,
+psa_status_t psa_algorithm_dispatch_mac_compute(const psa_key_id_t key,
+                                                const psa_key_attributes_t *attributes,
                                                 psa_algorithm_t alg,
                                                 const psa_key_slot_t *slot,
                                                 const uint8_t *input,
