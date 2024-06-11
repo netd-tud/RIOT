@@ -688,6 +688,52 @@ psa_status_t psa_algorithm_dispatch_mac_compute(const psa_key_id_t key,
     }
 }
 
+psa_status_t psa_algorithm_dispatch_mac_verify(const psa_key_id_t key,
+                                               const psa_key_attributes_t *attributes,
+                                               psa_algorithm_t alg,
+                                               const psa_key_slot_t *slot,
+                                               const uint8_t *input,
+                                               size_t input_length,
+                                               const uint8_t *mac,
+                                               size_t mac_length)
+{
+    switch (alg) {
+#if IS_USED(MODULE_PSA_MAC_HMAC_MD5) && IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+    case PSA_ALG_HMAC(PSA_ALG_MD5):
+        return psa_hmac_verify(key, alg, input, input_length, mac, mac_length);
+#endif
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA_1) && IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+    case PSA_ALG_HMAC(PSA_ALG_SHA_1):
+        return psa_hmac_verify(key, alg, input, input_length, mac, mac_length);
+#endif
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA_224) && IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+    case PSA_ALG_HMAC(PSA_ALG_SHA_224):
+        return psa_hmac_verify(key, alg, input, input_length, mac, mac_length);
+#endif
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA_256) && IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+    case PSA_ALG_HMAC(PSA_ALG_SHA_256):
+        return psa_hmac_verify(key, alg, input, input_length, mac, mac_length);
+#endif
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA_384) && IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+    case PSA_ALG_HMAC(PSA_ALG_SHA_384):
+        return psa_hmac_verify(key, alg, input, input_length, mac, mac_length);
+#endif
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA_512) && IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+    case PSA_ALG_HMAC(PSA_ALG_SHA_512):
+        return psa_hmac_verify(key, alg, input, input_length, mac, mac_length);
+#endif
+    default:
+        (void)key;
+        (void)attributes;
+        (void)slot;
+        (void)input;
+        (void)input_length;
+        (void)mac;
+        (void)mac_length;
+        return PSA_ERROR_NOT_SUPPORTED;
+    }
+}
+
 psa_status_t psa_algorithm_dispatch_mac_sign_setup(psa_mac_operation_t *operation,
                                                    const psa_key_attributes_t *attributes,
                                                    const psa_key_slot_t *slot,
