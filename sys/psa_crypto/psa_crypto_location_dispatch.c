@@ -431,6 +431,58 @@ psa_status_t psa_location_dispatch_verify_message(  const psa_key_attributes_t *
 }
 #endif /* MODULE_PSA_ASYMMETRIC */
 
+#if IS_USED(MODULE_PSA_KEY_DERIVATION)
+psa_status_t psa_location_dispatch_key_derivation_abort(psa_mac_operation_t *operation)
+{
+    return psa_algorithm_dispatch_key_derivation_abort(operation);
+}
+
+psa_status_t psa_location_dispatch_key_derivation_input_bytes(psa_key_derivation_operation_t *operation,
+                                            psa_key_derivation_step_t step,
+                                            const uint8_t *data,
+                                            size_t data_length,
+                                            psa_algorithm_t alg)
+{
+    return psa_algorithm_dispatch_key_derivation_input_bytes(operation, step, data, data_length, alg);
+}
+
+psa_status_t psa_location_dispatch_key_derivation_input_key(psa_key_derivation_operation_t *operation,
+                                          psa_key_derivation_step_t step,
+                                          psa_key_id_t key)
+{
+    return psa_algorithm_dispatch_key_derivation_input_key(operation, step, key);
+
+}
+
+
+psa_status_t psa_location_dispatch_key_derivation_key_agreement(psa_key_derivation_operation_t *operation,
+                                              psa_key_derivation_step_t step,
+                                              psa_key_id_t private_key,
+                                              const uint8_t *peer_key,
+                                              size_t peer_key_length)
+{
+    return psa_algorithm_dispatch_key_derivation_key_agreement(operation, step, private_key, peer_key, peer_key_length);
+
+}
+
+
+psa_status_t psa_location_dispatch_key_derivation_output_bytes(psa_key_derivation_operation_t *operation,
+                                             uint8_t *output,
+                                             size_t output_length)
+{
+    return psa_algorithm_dispatch_key_derivation_output_bytes(operation, output, output_length);
+
+}
+
+psa_status_t psa_location_dispatch_key_derivation_setup(psa_key_derivation_operation_t *operation,
+                                                        psa_algorithm_t alg)
+{
+    return psa_algorithm_dispatch_key_derivation_setup(operation, alg);
+}
+
+#endif /* MODULE_PSA_KEY_DERIVATION */
+
+
 #if IS_USED(MODULE_PSA_MAC)
 psa_status_t psa_location_dispatch_mac_compute(const psa_key_id_t key,
                                                const psa_key_attributes_t *attributes,

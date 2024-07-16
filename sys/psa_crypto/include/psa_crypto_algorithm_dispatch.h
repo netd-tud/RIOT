@@ -240,6 +240,89 @@ psa_status_t psa_algorithm_dispatch_cipher_decrypt( const psa_key_attributes_t *
                                                     size_t *output_length);
 #endif /* MODULE_PSA_CIPHER */
 
+#if IS_USED(MODULE_PSA_KEY_DERIVATION)
+
+/**
+ * @brief   Dispatch call of a key derivation abort function to a location-specific backend.
+ *          See @ref psa_key_derivation_abort()
+ *
+ * @param operation
+ * @return psa_status_t
+ */
+psa_status_t psa_algorithm_dispatch_key_derivation_abort(psa_mac_operation_t *operation);
+
+/**
+ * @brief   Dispatch call of a key derivation direct input pass function to a location-specific backend.
+ *          See @ref psa_key_derivation_input_bytes()
+ *
+ * @param operation
+ * @param step
+ * @param data
+ * @param data_length
+ * @param alg
+ * @return psa_status_t
+ */
+psa_status_t psa_algorithm_dispatch_key_derivation_input_bytes(psa_key_derivation_operation_t *operation,
+                                            psa_key_derivation_step_t step,
+                                            const uint8_t *data,
+                                            size_t data_length,
+                                            psa_algorithm_t alg);
+
+/**
+ * @brief   Dispatch call of a key derivation direct input pass function to a location-specific backend.
+ *          See @ref psa_key_derivation_input_bytes()
+ *
+ * @param operation
+ * @param step
+ * @param data
+ * @param data_length
+ * @param alg
+ * @return psa_status_t
+ */
+psa_status_t psa_algorithm_dispatch_key_derivation_input_key(psa_key_derivation_operation_t *operation,
+                                          psa_key_derivation_step_t step,
+                                          psa_key_id_t key);
+
+/**
+ * @brief   Dispatch call of a key derivation setup function to a location-specific backend.
+ *          See @ref psa_key_derivation_setup()
+ *
+ * @param operation
+ * @param alg
+ * @return psa_status_t
+ */
+psa_status_t psa_algorithm_dispatch_key_derivation_key_agreement(psa_key_derivation_operation_t *operation,
+                                              psa_key_derivation_step_t step,
+                                              psa_key_id_t private_key,
+                                              const uint8_t *peer_key,
+                                              size_t peer_key_length);
+
+/**
+ * @brief   Dispatch call of a key derivation setup function to a location-specific backend.
+ *          See @ref psa_key_derivation_setup()
+ *
+ * @param operation
+ * @param alg
+ * @return psa_status_t
+ */
+psa_status_t psa_algorithm_dispatch_key_derivation_output_bytes(psa_key_derivation_operation_t *operation,
+                                             uint8_t *output,
+                                             size_t output_length);
+
+
+/**
+ * @brief   Dispatch call of a key derivation setup function to a location-specific backend.
+ *          See @ref psa_key_derivation_setup()
+ *
+ * @param operation
+ * @param alg
+ * @return psa_status_t
+ */
+psa_status_t psa_algorithm_dispatch_key_derivation_setup(psa_key_derivation_operation_t *operation,
+                                                        psa_algorithm_t alg);
+
+#endif /* MODULE_PSA_KEY_DERIVATION */
+
 #if IS_USED(MODULE_PSA_MAC)
 /**
  * @brief   Dispatch a mac computation function to a specific backend.

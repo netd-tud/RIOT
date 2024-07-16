@@ -39,6 +39,11 @@
 #include "psa_ciphers.h"
 #endif
 
+#if IS_USED(MODULE_PSA_KEY_DERIVATION)
+#include "psa_kdf.h"
+#include "psa_hkdf.h"
+#endif
+
 #if IS_USED(MODULE_PSA_KEY_MANAGEMENT)
 #include "psa_crypto_operation_encoder.h"
 #endif
@@ -638,6 +643,111 @@ psa_status_t psa_algorithm_dispatch_cipher_decrypt( const psa_key_attributes_t *
     }
 }
 #endif /* MODULE_PSA_CIPHER */
+
+#if IS_USED(MODULE_PSA_KEY_DERIVATION)
+
+psa_status_t psa_algorithm_dispatch_key_derivation_abort(psa_mac_operation_t *operation)
+{
+    return psa_kdf_abort(operation);
+}
+
+psa_status_t psa_algorithm_dispatch_key_derivation_input_bytes(psa_key_derivation_operation_t *operation,
+                                            psa_key_derivation_step_t step,
+                                            const uint8_t *data,
+                                            size_t data_length,
+                                            psa_algorithm_t alg)
+{
+    switch (alg) {
+//TODO: HKDF MODULE
+#if IS_USED(MODULE_PSA_KDF_HKDF) && IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+    case PSA_ALG_HKDF(alg):
+        return psa_hkdf_input(operation, step, data, data_length, alg);
+#endif
+    default:
+        (void)operation;
+        (void)step;
+        (void)data;
+        (void)data_length;
+        (void)alg;
+        return PSA_ERROR_NOT_SUPPORTED;
+    }
+}
+
+psa_status_t psa_algorithm_dispatch_key_derivation_input_key(psa_key_derivation_operation_t *operation,
+                                          psa_key_derivation_step_t step,
+                                          psa_key_id_t key)
+{
+    // TODO: Implement kdf input key
+
+
+}
+
+psa_status_t psa_algorithm_dispatch_key_derivation_key_agreement(psa_key_derivation_operation_t *operation,
+                                              psa_key_derivation_step_t step,
+                                              psa_key_id_t private_key,
+                                              const uint8_t *peer_key,
+                                              size_t peer_key_length)
+{
+    // TODO: Implement kdf key agreement
+}
+
+psa_status_t psa_algorithm_dispatch_key_derivation_output_bytes(psa_key_derivation_operation_t *operation,
+                                             uint8_t *output,
+                                             size_t output_length)
+{
+    // TODO: Implement kdf output bytes
+}
+
+
+psa_status_t psa_algorithm_dispatch_key_derivation_setup(psa_key_derivation_operation_t *operation,
+                                                        psa_algorithm_t alg)
+{
+    // TODO: Implement kdf setup
+
+    // check if kdf alg is supported
+    if (!kdf_alg_supported(alg)) {
+        // free(operation); // should it be aborted instead? TODO
+        return PSA_ERROR_NOT_SUPPORTED;
+    }
+
+    // initialize the operation object
+    *operation = PSA_KEY_DERIVATION_OPERATION_INIT;
+
+    // set the algorithm
+    operation->alg = alg;
+    operation.ctx->hash_alg = PSA_ALG_GET_HASH(alg);
+    operation.ctx->hash_length = PSA_HASH_LENGTH(alg);
+
+    psa_algorithm_t hash_alg = operation.ctx->hash_alg;
+    size_t hash_length = operation.ctx->hash_length;
+
+    #if defined(MODULE_PSA_KDF_HKDF)
+    if (PSA_ALG_IS_HKDF(kdf_alg)) {
+        psa_key_derivation_set_capacity(operation, 255 * hash_length);
+    }else
+    if (PSA_ALG_IS_HKDF_EXTRACT(kdf_alg)) {
+        psa_key_derivation_set_capacity(operation, hash_length);
+    } else
+    if (PSA_ALG_IS_HKDF_EXPAND(kdf_alg)) {
+        psa_key_derivation_set_capacity(operation, 255 * hash_length);
+    } else
+    #endif
+
+    return PSA_SUCCESS;
+}
+
+static int kdf_alg_supported(psa_algorithm_t alg)
+{
+#if defined(MODULE_PSA_KDF_HKDF)
+    if (PSA_ALG_IS_HKDF(kdf_alg)) {
+        return 1;
+    }
+#endif
+    return 0;
+}
+
+
+#endif /* MODULE_PSA_KEY_DERIVATION */
 
 #if IS_USED(MODULE_PSA_MAC)
 psa_status_t psa_algorithm_dispatch_mac_compute(const psa_key_id_t key,

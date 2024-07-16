@@ -1627,20 +1627,68 @@ psa_status_t psa_import_key(const psa_key_attributes_t *attributes,
     return status;
 }
 #endif /* MODULE_PSA_KEY_MANAGEMENT */
-
 #if IS_USED(MODULE_PSA_KEY_DERIVATION)
 psa_status_t psa_key_derivation_abort(psa_key_derivation_operation_t *operation)
 {
-    (void)operation;
-    return PSA_ERROR_NOT_SUPPORTED;
+    psa_status_t status = PSA_SUCCESS;
+
+    if (!lib_initialized)
+    {
+        return PSA_ERROR_BAD_STATE;
+    }
+
+    if (!operation)
+    {
+        return PSA_ERROR_INVALID_ARGUMENT;
+    }
+
+    status = psa_location_dispatch_key_derivation_abort(operation);  
+    *operation = psa_key_derivation_operation_init();
+
+    return status;
 }
 
 psa_status_t psa_key_derivation_get_capacity(const psa_key_derivation_operation_t *operation,
                                              size_t *capacity)
 {
-    (void)operation;
-    (void)capacity;
-    return PSA_ERROR_NOT_SUPPORTED;
+
+    psa_status_t status = PSA_SUCCESS;
+
+    if (!lib_initialized)
+    {
+        return PSA_ERROR_BAD_STATE;
+    }
+
+    if (!operation || !operation->alg) {
+        return PSA_ERROR_BAD_STATE;
+    }
+
+    *capacity = operation->capacity;
+    return status;
+}
+
+psa_status_t psa_key_derivation_set_capacity(psa_key_derivation_operation_t *operation,
+                                             size_t capacity)
+{
+    psa_status_t status = PSA_SUCCESS;
+
+    if (!lib_initialized)
+    {
+        return PSA_ERROR_BAD_STATE;
+    }
+
+    if (!operation || !operation->alg)
+    {
+        return PSA_ERROR_BAD_STATE;
+    }
+
+    if (capacity > operation->capacity)
+    {
+        return PSA_ERROR_INVALID_ARGUMENT;
+    }
+
+    operation->capacity = capacity;
+    return status;
 }
 
 psa_status_t psa_key_derivation_input_bytes(psa_key_derivation_operation_t *operation,
@@ -1648,72 +1696,172 @@ psa_status_t psa_key_derivation_input_bytes(psa_key_derivation_operation_t *oper
                                             const uint8_t *data,
                                             size_t data_length)
 {
-    (void)operation;
-    (void)step;
-    (void)data;
-    (void)data_length;
-    return PSA_ERROR_NOT_SUPPORTED;
+
+    psa_status_t status = PSA_SUCCESS;
+
+    if (!lib_initialized)
+    {
+        return PSA_ERROR_BAD_STATE;
+    }
+
+    if (!operation)
+    {
+        return PSA_ERROR_INVALID_ARGUMENT;
+    }
+
+    psa_algorithm_t alg = psa_kdf_get_alg(operation);
+
+    status = psa_location_dispatch_key_derivation_input_bytes(operation, step, data, data_length, alg);  
+    if (status != PSA_SUCCESS) {
+        psa_key_derivation_abort(operation);
+    }
+
+    return status;
+
 }
 
+// TODO dispatcher
 psa_status_t psa_key_derivation_input_key(psa_key_derivation_operation_t *operation,
                                           psa_key_derivation_step_t step,
                                           psa_key_id_t key)
 {
-    (void)operation;
-    (void)step;
-    (void)key;
-    return PSA_ERROR_NOT_SUPPORTED;
+
+    psa_status_t status = PSA_SUCCESS;
+
+    if (!lib_initialized)
+    {
+        return PSA_ERROR_BAD_STATE;
+    }
+
+    if (!operation)
+    {
+        return PSA_ERROR_INVALID_ARGUMENT;
+    }
+
+    status = psa_location_dispatch_key_derivation_input_key(operation, step, key);  
+    if (status != PSA_SUCCESS) {
+        psa_key_derivation_abort(operation);
+    }
+
+    return status;
 }
 
+// TODO dispatcher
 psa_status_t psa_key_derivation_key_agreement(psa_key_derivation_operation_t *operation,
                                               psa_key_derivation_step_t step,
                                               psa_key_id_t private_key,
                                               const uint8_t *peer_key,
                                               size_t peer_key_length)
 {
-    (void)operation;
-    (void)step;
-    (void)private_key;
-    (void)peer_key;
-    (void)peer_key_length;
-    return PSA_ERROR_NOT_SUPPORTED;
+    psa_status_t status = PSA_SUCCESS;
+
+    if (!lib_initialized)
+    {
+        return PSA_ERROR_BAD_STATE;
+    }
+
+    if (!operation)
+    {
+        return PSA_ERROR_INVALID_ARGUMENT;
+    }
+
+    status = psa_location_dispatch_key_derivation_key_agreement(operation, step, private_key, peer_key, peer_key_length);  
+    if (status != PSA_SUCCESS) {
+        psa_key_derivation_abort(operation);
+    }
+
+    return status;
 }
 
+// TODO dispatcher
 psa_status_t psa_key_derivation_output_bytes(psa_key_derivation_operation_t *operation,
                                              uint8_t *output,
                                              size_t output_length)
 {
-    (void)operation;
-    (void)output;
-    (void)output_length;
-    return PSA_ERROR_NOT_SUPPORTED;
+    psa_status_t status;
+    psa_algorithm_t alg = psa_kdf_get_alg(operation);
+
+    if (!lib_initialized)
+    {
+        status = PSA_ERROR_BAD_STATE;
+    }
+
+    if (!operation->alg)
+    {
+        status = PSA_ERROR_BAD_STATE;
+    }
+
+    if (output_length > operation->capacity)
+    {
+        status = PSA_ERROR_INSUFFICIENT_DATA;
+    }
+
+    if (output_length == 0 && operation->capacity == 0)
+    {
+        status = PSA_ERROR_INSUFFICIENT_DATA;
+    }
+    operation->capacity -= output_length;
+
+    if (!PSA_ALG_IS_HKDF(alg))
+    {
+        status = PSA_ERROR_BAD_STATE;
+    }
+
+    status = psa_location_dispatch_key_derivation_output_bytes(operation, output, output_length);
+
+    if (status != PSA_SUCCESS) {
+        psa_key_derivation_abort(operation);
+    }
+
+    return status;
+
 }
 
-psa_status_t psa_key_derivation_output_key(const psa_key_attributes_t *attributes,
-                                           psa_key_derivation_operation_t *operation,
-                                           psa_key_id_t *key)
-{
-    (void)attributes;
-    (void)operation;
-    (void)key;
-    return PSA_ERROR_NOT_SUPPORTED;
-}
-
-psa_status_t psa_key_derivation_set_capacity(psa_key_derivation_operation_t *operation,
-                                             size_t capacity)
-{
-    (void)operation;
-    (void)capacity;
-    return PSA_ERROR_NOT_SUPPORTED;
-}
-
+// TODO dispatcher
 psa_status_t psa_key_derivation_setup(psa_key_derivation_operation_t *operation,
                                       psa_algorithm_t alg)
 {
-    (void)operation;
-    (void)alg;
-    return PSA_ERROR_NOT_SUPPORTED;
+
+    psa_status_t status;
+
+    if (!lib_initialized)
+    {
+        return PSA_ERROR_BAD_STATE;
+    }
+
+    if (!operation || !operation->alg)
+    {
+        return PSA_ERROR_INVALID_ARGUMENT;
+    }
+
+    if (!PSA_ALG_IS_KEY_DERIVATION(alg) && !(PSA_ALG_IS_KEY_AGREEMENT(alg) && !PSA_ALG_IS_RAW_KEY_AGREEMENT(alg)))
+    {
+        return PSA_ERROR_INVALID_ARGUMENT;
+    }
+
+    if (!PSA_ALG_IS_KEY_DERIVATION(alg) || !(PSA_ALG_IS_KEY_AGREEMENT(alg) && !PSA_ALG_IS_RAW_KEY_AGREEMENT(alg)))
+    {
+        return PSA_ERROR_NOT_SUPPORTED;
+    }
+
+    status = psa_location_dispatch_key_derivation_setup(operation, alg);
+
+    return status;
 }
+
+static psa_algorithm_t psa_kdf_get_alg(
+    const psa_key_derivation_operation_t *operation)
+{
+    if (PSA_ALG_IS_KEY_AGREEMENT(operation->alg))
+    {
+        return PSA_ALG_KEY_AGREEMENT_GET_KDF(operation->alg);
+    }
+    else
+    {
+        return operation->alg;
+    }
+}
+
 #endif /* MODULE_PSA_KEY_DERIVATION */
 
 #if IS_USED(MODULE_PSA_MAC)

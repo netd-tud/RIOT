@@ -61,6 +61,19 @@ typedef union {
 } psa_hash_context_t;
 #endif
 
+#if IS_USED(MODULE_PSA_KEY_DERIVATION)
+/**
+ * @brief   Structure containing the key derivation contexts needed by the application.
+ */
+typedef union {
+#if IS_USED(MODULE_PSA_KDF_HKDF) || defined(DOXYGEN)
+// TODO: psa_hkdf_key_derivation_ctx_t in psa_hkdf.h
+    psa_hkdf_key_derivation_ctx_t hkdf; /**< HKDF context */
+#endif
+} psa_key_derivation_ctx_t;
+#endif
+
+
 #if IS_USED(MODULE_PSA_CIPHER)
 /**
  * @brief   Structure containing the cipher contexts needed by the application.

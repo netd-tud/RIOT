@@ -146,12 +146,14 @@ static inline struct psa_cipher_operation_s psa_cipher_operation_init(void)
 #define PSA_KEY_DERIVATION_OPERATION_INIT { 0 }
 
 /**
- * @brief   Structure storing a key derivation context
+ * @brief   Structure storing a key derivation operation
  *
- * @note    Not yet implemented
  */
 struct psa_key_derivation_operation_s {
-    int dummy;  /**< Not implemented yet */
+    psa_algorithm_t alg;
+    unsigned int can_output_key : 1;
+    size_t capacity;
+    psa_key_derivation_ctx_t ctx;
 };
 
 /**

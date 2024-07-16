@@ -307,6 +307,60 @@ extern "C" {
     ((psa_algorithm_t)(0x08000100 | ((hash_alg) & 0x000000ff)))
 
 /**
+ * @brief   Macro to build an HKDF-Extract algorithm.
+ *
+ * @details This is the Extract step of HKDF as specified by 
+ *          HMAC-based Extract-and-Expand Key Derivation Function (HKDF) [RFC5869] §2.2.
+ *
+ *          This key derivation algorithm uses the following inputs:
+ *          -   @ref PSA_KEY_DERIVATION_INPUT_SALT is the salt.
+ *          -   @ref PSA_KEY_DERIVATION_INPUT_SECRET is the input keying material used in the “extract” step.
+ *
+ *          The inputs are mandatory and must be passed in the order above. 
+ *          Each input may only be passed once.
+ *
+ *          @b Compatible @b key @b types
+ *          - @ref PSA_KEY_TYPE_DERIVE (for the secret key)
+ *          - @ref PSA_KEY_TYPE_RAW_DATA (for the other inputs)
+ *
+ * @param   hash_alg    A hash algorithm: a value of type @ref psa_algorithm_t such that
+ *                      @ref PSA_ALG_IS_HASH(@p hash_alg) is true.
+ *
+ * @return  The corresponding HKDF-Extract algorithm. 
+ *          For example, PSA_ALG_HKDF_EXTRACT(PSA_ALG_SHA_256) is HKDF-Extract using HMAC-SHA-256.
+ *          Unspecified if @c hash_alg is not a supported hash algorithm.
+ */
+#define PSA_ALG_HKDF_EXTRACT(hash_alg) \
+    ((psa_algorithm_t) (0x08000400 | ((hash_alg) & 0x000000ff)))
+
+/**
+ * @brief   Macro to build an HKDF-Expand algorithm.
+ *
+ * @details This is the Expand step of HKDF as specified by 
+ *          HMAC-based Extract-and-Expand Key Derivation Function (HKDF) [RFC5869] §2.3.
+ *
+ *          This key derivation algorithm uses the following inputs:
+ *          -   @ref PSA_KEY_DERIVATION_INPUT_SECRET is the pseudorandom key (PRK).
+ *          -   @ref PSA_KEY_DERIVATION_INPUT_INFO is the info string.
+ *
+ *          The inputs are mandatory and must be passed in the order above. 
+ *          Each input may only be passed once.
+ *
+ *          @b Compatible @b key @b types
+ *          - @ref PSA_KEY_TYPE_DERIVE (for the secret key)
+ *          - @ref PSA_KEY_TYPE_RAW_DATA (for the other inputs)
+ *
+ * @param   hash_alg    A hash algorithm: a value of type @ref psa_algorithm_t such that
+ *                      @ref PSA_ALG_IS_HASH(@p hash_alg) is true.
+ *
+ * @return  The corresponding HKDF-Expand algorithm. 
+ *          For example, PSA_ALG_HKDF_EXPAND(PSA_ALG_SHA_256) is HKDF-Expand using HMAC-SHA-256.
+ *          Unspecified if @c hash_alg is not a supported hash algorithm.
+ */
+#define PSA_ALG_HKDF_EXPAND(hash_alg) \
+    ((psa_algorithm_t) (0x08000500 | ((hash_alg) & 0x000000ff)))
+
+/**
  * @brief   Get the hash used by a composite algorithm.
  *
  *          The following composite algorithms require a hash algorithm:
@@ -543,6 +597,34 @@ extern "C" {
  */
 #define PSA_ALG_IS_HKDF(alg) \
     (((alg) & ~0x000000ff) == 0x08000100)
+
+/**
+ * @brief   Whether the specified algorithm is an HKDF-Expand algorithm.
+ *
+ * @details HKDF is a family of key derivation algorithms that are based on a hash function and the
+ *          HMAC construction.
+ *
+ * @param   alg An algorithm identifier: a value of type @ref psa_algorithm_t.
+ *
+ * @return  1 if alg is an HKDF algorithm
+ *          0 otherwise
+ */
+#define PSA_ALG_IS_HKDF_EXPAND(alg) \
+    (((alg) & ~0x000000ff) == 0x08000500)
+
+/**
+ * @brief   Whether the specified algorithm is an HKDF-Extract algorithm.
+ *
+ * @details HKDF is a family of key derivation algorithms that are based on a hash function and the
+ *          HMAC construction.
+ *
+ * @param   alg An algorithm identifier: a value of type @ref psa_algorithm_t.
+ *
+ * @return  1 if alg is an HKDF algorithm
+ *          0 otherwise
+ */
+#define PSA_ALG_IS_HKDF_EXTRACT(alg) \
+    (((alg) & ~0x000000ff) == 0x08000400)
 
 /**
  * @brief   Whether the specified algorithm is an HMAC algorithm.
@@ -2276,14 +2358,14 @@ extern "C" {
  * @details This is typically a direct input. It can also be a key of type
  *          @ref PSA_KEY_TYPE_RAW_DATA.
  */
-#define PSA_KEY_DERIVATION_INPUT_CONTEXT /* implementation-defined value */
+#define PSA_KEY_DERIVATION_INPUT_CONTEXT ((psa_key_derivation_step_t)0x0001)
 
 /**
  * @brief   A cost parameter for password hashing or key stretching.
  *
  * @details This must be a direct input, passed to @ref psa_key_derivation_input_integer().
  */
-#define PSA_KEY_DERIVATION_INPUT_COST /* implementation-defined value */
+#define PSA_KEY_DERIVATION_INPUT_COST ((psa_key_derivation_step_t)0x0002)
 
 /**
  * @brief   An information string for key derivation.
@@ -2291,7 +2373,7 @@ extern "C" {
  * @details This is typically a direct input. It can also be a key of type
  *          @ref PSA_KEY_TYPE_RAW_DATA.
  */
-#define PSA_KEY_DERIVATION_INPUT_INFO /* implementation-defined value */
+#define PSA_KEY_DERIVATION_INPUT_INFO ((psa_key_derivation_step_t)0x0003)
 
 /**
  * @brief   A label for key derivation.
@@ -2299,7 +2381,7 @@ extern "C" {
  * @details This is typically a direct input. It can also be a key of type
  *          @ref PSA_KEY_TYPE_RAW_DATA.
  */
-#define PSA_KEY_DERIVATION_INPUT_LABEL /* implementation-defined value */
+#define PSA_KEY_DERIVATION_INPUT_LABEL ((psa_key_derivation_step_t)0x0004)
 
 /**
  * @brief   A low-entropy secret input for password hashing or key stretching.
@@ -2313,7 +2395,7 @@ extern "C" {
  *          If the secret is a direct input, the derivation operation cannot be used to derive
  *          keys: the operation will not allow a call to @ref psa_key_derivation_output_key().
  */
-#define PSA_KEY_DERIVATION_INPUT_PASSWORD /* implementation-defined value */
+#define PSA_KEY_DERIVATION_INPUT_PASSWORD ((psa_key_derivation_step_t)0x0005)
 
 /**
  * @brief   A salt for key derivation.
@@ -2321,7 +2403,7 @@ extern "C" {
  * @details This is typically a direct input. It can also be a key of type
  *          @ref PSA_KEY_TYPE_RAW_DATA or @ref PSA_KEY_TYPE_PEPPER.
  */
-#define PSA_KEY_DERIVATION_INPUT_SALT /* implementation-defined value */
+#define PSA_KEY_DERIVATION_INPUT_SALT ((psa_key_derivation_step_t)0x0006)
 
 /**
  * @brief   A high-entropy secret input for key derivation.
@@ -2334,7 +2416,7 @@ extern "C" {
  *          In this case, the derivation operation cannot be used to derive keys: the operation
  *          will not allow a call to @ref psa_key_derivation_output_key().
  */
-#define PSA_KEY_DERIVATION_INPUT_SECRET /* implementation-defined value */
+#define PSA_KEY_DERIVATION_INPUT_SECRET ((psa_key_derivation_step_t)0x0007)
 
 /**
  * @brief   A seed for key derivation.
@@ -2342,7 +2424,7 @@ extern "C" {
  * @details This is typically a direct input. It can also be a key of type
  *          @ref PSA_KEY_TYPE_RAW_DATA.
  */
-#define PSA_KEY_DERIVATION_INPUT_SEED /* implementation-defined value */
+#define PSA_KEY_DERIVATION_INPUT_SEED ((psa_key_derivation_step_t)0x0008)
 
 /**
  * @brief   Use the maximum possible capacity for a key derivation operation.
@@ -2352,7 +2434,7 @@ extern "C" {
  *          possible capacity depends on the key derivation algorithm.
  */
 #define PSA_KEY_DERIVATION_UNLIMITED_CAPACITY \
-/* implementation-defined value */
+((size_t) (-1))
 
 /**
  * @brief   The null key identifier.
