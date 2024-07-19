@@ -839,8 +839,18 @@ groups:
       help: SHA-512/224 hardware acceleration present.
     - name: periph_hash_sha_512_256
       help: SHA-512/256 hardware acceleration present.
+    - name: periph_hmac_md5
+      help: HMAC MD5 hardware acceleration present.
+    - name: periph_hmac_sha_1
+      help: HMAC SHA-1 hardware acceleration present.
+    - name: periph_hmac_sha_224
+      help: HMAC SHA-224 hardware acceleration present.
     - name: periph_hmac_sha_256
       help: HMAC SHA-256 hardware acceleration present.
+    - name: periph_hmac_sha_384
+      help: HMAC SHA-384 hardware acceleration present.
+    - name: periph_hmac_sha_512
+      help: HMAC SHA-512 hardware acceleration present.
     - name: periph_hwrng
       help: A Hardware Random Number Generator (HWRNG) peripheral is present.
     - name: periph_cipher_aes_128_cbc

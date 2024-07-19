@@ -187,7 +187,12 @@ FEATURES_EXISTING := \
     periph_hash_sha_512 \
     periph_hash_sha_512_224 \
     periph_hash_sha_512_256 \
+    periph_hmac_md5 \
+    periph_hmac_sha_1 \
+    periph_hmac_sha_224 \
     periph_hmac_sha_256 \
+    periph_hmac_sha_384 \
+    periph_hmac_sha_512 \
     periph_hwrng \
     periph_i2c \
     periph_i2c_reconfigure \
