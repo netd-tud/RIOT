@@ -20,8 +20,8 @@
  */
 
 
-#ifndef PSA_KDF_H
-#define PSA_KDF_H
+#ifndef PSA_KEY_DERIVATION_H
+#define PSA_KEY_DERIVATION_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,22 +31,19 @@ extern "C" {
 #include "psa/crypto.h"
 #include "psa/crypto_contexts.h"
 
-#if IS_USED(MODULE_PSA_KEY_DERIVATION)
-
 /**
  * @brief   Low level function to abort the key derivation operation
  *          See @ref psa_kdf_abort()
  * @param   operation
  * @return  @ref psa_status_t
  */
-psa_status_t psa_kdf_abort(psa_mac_operation_t *operation);
+psa_status_t psa_kdf_abort(psa_key_derivation_operation_t *operation);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* MODULE_PSA_KEY_DERIVATION */
 
-#endif /* PSA_KDF_H */
+#endif /* PSA_KEY_DERIVATION_H */
 /**@}*/
 

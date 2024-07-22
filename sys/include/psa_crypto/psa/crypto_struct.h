@@ -150,11 +150,13 @@ static inline struct psa_cipher_operation_s psa_cipher_operation_init(void)
  *
  */
 struct psa_key_derivation_operation_s {
-    psa_algorithm_t alg;
-    unsigned int can_output_key : 1;
-    size_t capacity;
-    psa_key_derivation_ctx_t ctx;
+    psa_algorithm_t alg;                /**< Key derivation algorithm */
+    unsigned int can_output_key : 1;    /**< FLag that derivation operation cannot be used to derive keys*/
+    size_t capacity;                    /**< Maximum capacity of a key derivation operation. */
+    psa_key_derivation_ctx_t ctx;       /**< Key derivation context */
+    operation_state_t state;            /**< State of the operation */
 };
+
 
 /**
  * @brief   Return an initial value for a key derivation operation object.

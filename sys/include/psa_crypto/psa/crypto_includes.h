@@ -48,7 +48,11 @@ extern "C" {
 #include "psa_periph_hashes_ctx.h"
 #endif
 
-#if IS_USED(MODULE_PSA_KEY_DERIVATION) || IS_USED(MODULE_PSA_KDF_HKDF)
+#if IS_USED(MODULE_PSA_KEY_DERIVATION)
+#include "psa_kdf.h"
+#endif
+
+#if IS_USED(MODULE_PSA_KDF_HKDF)
 #include "psa_hkdf.h"
 #endif
 

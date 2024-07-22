@@ -67,7 +67,6 @@ typedef union {
  */
 typedef union {
 #if IS_USED(MODULE_PSA_KDF_HKDF) || defined(DOXYGEN)
-// TODO: psa_hkdf_key_derivation_ctx_t in psa_hkdf.h
     psa_hkdf_key_derivation_ctx_t hkdf; /**< HKDF context */
 #endif
 } psa_key_derivation_ctx_t;

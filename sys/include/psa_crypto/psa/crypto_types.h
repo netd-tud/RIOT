@@ -36,6 +36,18 @@ typedef enum {
 } psa_encrypt_or_decrypt_t;
 
 /**
+ * @brief   Structure storing possible key derivation operation states
+ *
+ */
+typedef enum {
+    STATE_NONE,
+    STATE_SALT_PROVIDED,
+    STATE_SECRET_PROVIDED,
+    STATE_INFO_PROVIDED,
+    STATE_OUTPUT_GENERATED
+} operation_state_t;
+
+/**
  * @brief   Encoding of a cryptographic algorithm.
  *
  * @details For algorithms that can be applied to multiple key types, this identifier does not

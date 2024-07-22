@@ -274,14 +274,18 @@ psa_status_t psa_algorithm_dispatch_key_derivation_input_bytes(psa_key_derivatio
  *
  * @param operation
  * @param step
+ * @param key_type
  * @param data
  * @param data_length
  * @param alg
  * @return psa_status_t
  */
 psa_status_t psa_algorithm_dispatch_key_derivation_input_key(psa_key_derivation_operation_t *operation,
-                                          psa_key_derivation_step_t step,
-                                          psa_key_id_t key);
+                                                psa_key_derivation_step_t step,
+                                                psa_key_type_t key_type,
+                                                const uint8_t *data,
+                                                size_t data_length,
+                                                psa_algorithm_t alg);
 
 /**
  * @brief   Dispatch call of a key derivation setup function to a location-specific backend.
@@ -302,13 +306,30 @@ psa_status_t psa_algorithm_dispatch_key_derivation_key_agreement(psa_key_derivat
  *          See @ref psa_key_derivation_setup()
  *
  * @param operation
+ * @param output
+ * @param output_length
  * @param alg
  * @return psa_status_t
  */
 psa_status_t psa_algorithm_dispatch_key_derivation_output_bytes(psa_key_derivation_operation_t *operation,
                                              uint8_t *output,
-                                             size_t output_length);
+                                             size_t output_length,
+                                             psa_algorithm_t alg);
 
+/**
+ * @brief   Dispatch call of a key derivation setup function to a location-specific backend.
+ *          See @ref psa_key_derivation_setup()
+ *
+ * @param operation
+ * @param output
+ * @param output_length
+ * @param alg
+ * @return psa_status_t
+ */
+psa_status_t psa_algorithm_dispatch_key_derivation_output_key(psa_key_derivation_operation_t *operation,
+                                                const psa_key_attributes_t *attributes,
+                                                psa_key_id_t *key,
+                                                psa_algorithm_t alg);
 
 /**
  * @brief   Dispatch call of a key derivation setup function to a location-specific backend.
