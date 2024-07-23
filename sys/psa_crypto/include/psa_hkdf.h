@@ -34,7 +34,10 @@ extern "C" {
 #include <psa/crypto_types.h>
 #include <psa/crypto_struct.h>
 
-#include "psa_crypto_slot_management.h"
+
+//TODO: MIGRATE SLOTS TO CRYPTO_ALGORITHM_DISPATCH!
+// #include "psa_crypto_slot_management.h"
+// #include <psa_crypto_slot_management.h>
 
 
 /**

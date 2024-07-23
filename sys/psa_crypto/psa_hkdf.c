@@ -29,6 +29,8 @@
 #include "string_utils.h"
 #include "psa_crypto_slot_management.h"
 
+#if IS_USED(MODULE_PSA_KDF_HKDF)
+
 // TODO:
 psa_status_t psa_hkdf_input_bytes(psa_key_derivation_operation_t *operation,
                                   psa_key_derivation_step_t step,
@@ -450,3 +452,6 @@ bool is_valid_step_for_current_state(operation_state_t state, psa_key_derivation
         return false;
     }
 }
+
+
+#endif

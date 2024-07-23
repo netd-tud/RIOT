@@ -28,13 +28,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-// #include <psa_hkdf.h>
-// #include <psa_kdf.h>
-
-// #include "embUnit/embUnit.h"
-// #include <psa/crypto_struct.h>
-// #include <psa/crypto_types.h>
-
 /**
  * @brief   Example function to perform an HMAC SHA-256 computation
  *          with the PSA Crypto API.
