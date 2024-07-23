@@ -40,5 +40,5 @@ endif
 
 ifneq (,$(filter periph_hmac_sha_256,$(USEMODULE)))
   USEPKG += driver_cryptocell_310
-  USEMODULE += psa_cryptocell_310_hmac
+  USEMODULE += psa_cryptocell_310_hmac_sha256
 endif
