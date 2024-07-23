@@ -661,7 +661,10 @@ psa_status_t psa_algorithm_dispatch_mac_compute(const psa_key_attributes_t *attr
     switch (alg) {
 #if IS_USED(MODULE_PSA_MAC_HMAC_MD5)
     case PSA_ALG_HMAC(PSA_ALG_MD5):
-#if IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+#if IS_USED(MODULE_PSA_MAC_HMAC_MD5_BACKEND_PERIPH)
+        return psa_mac_compute_hmac_md5(attributes, key_data, *key_bytes, input, input_length,
+                                        mac, mac_size, mac_length);
+#elif IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
         return psa_generic_hmac_compute(key_data, *key_bytes, alg, input, input_length,
                                         mac, mac_size, mac_length);
 #else
@@ -670,7 +673,10 @@ psa_status_t psa_algorithm_dispatch_mac_compute(const psa_key_attributes_t *attr
 #endif
 #if IS_USED(MODULE_PSA_MAC_HMAC_SHA_1)
     case PSA_ALG_HMAC(PSA_ALG_SHA_1):
-#if IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA_1_BACKEND_PERIPH)
+        return psa_mac_compute_hmac_sha1(attributes, key_data, *key_bytes, input, input_length,
+                                         mac, mac_size, mac_length);
+#elif IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
         return psa_generic_hmac_compute(key_data, *key_bytes, alg, input, input_length,
                                         mac, mac_size, mac_length);
 #else
@@ -679,7 +685,10 @@ psa_status_t psa_algorithm_dispatch_mac_compute(const psa_key_attributes_t *attr
 #endif
 #if IS_USED(MODULE_PSA_MAC_HMAC_SHA_224)
     case PSA_ALG_HMAC(PSA_ALG_SHA_224):
-#if IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA_224_BACKEND_PERIPH)
+        return psa_mac_compute_hmac_sha224(attributes, key_data, *key_bytes, input, input_length,
+                                           mac, mac_size, mac_length);
+#elif IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
         return psa_generic_hmac_compute(key_data, *key_bytes, alg, input, input_length,
                                         mac, mac_size, mac_length);
 #else
@@ -688,7 +697,10 @@ psa_status_t psa_algorithm_dispatch_mac_compute(const psa_key_attributes_t *attr
 #endif
 #if IS_USED(MODULE_PSA_MAC_HMAC_SHA_256)
     case PSA_ALG_HMAC(PSA_ALG_SHA_256):
-#if IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA_256_BACKEND_PERIPH)
+        return psa_mac_compute_hmac_sha256(attributes, key_data, *key_bytes, input, input_length,
+                                           mac, mac_size, mac_length);
+#elif IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
         return psa_generic_hmac_compute(key_data, *key_bytes, alg, input, input_length,
                                         mac, mac_size, mac_length);
 #else
@@ -697,7 +709,10 @@ psa_status_t psa_algorithm_dispatch_mac_compute(const psa_key_attributes_t *attr
 #endif
 #if IS_USED(MODULE_PSA_MAC_HMAC_SHA_384)
     case PSA_ALG_HMAC(PSA_ALG_SHA_384):
-#if IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA_384_BACKEND_PERIPH)
+        return psa_mac_compute_hmac_sha384(attributes, key_data, *key_bytes, input, input_length,
+                                           mac, mac_size, mac_length);
+#elif IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
         return psa_generic_hmac_compute(key_data, *key_bytes, alg, input, input_length,
                                         mac, mac_size, mac_length);
 #else
@@ -706,7 +721,10 @@ psa_status_t psa_algorithm_dispatch_mac_compute(const psa_key_attributes_t *attr
 #endif
 #if IS_USED(MODULE_PSA_MAC_HMAC_SHA_512)
     case PSA_ALG_HMAC(PSA_ALG_SHA_512):
-#if IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA_512_BACKEND_PERIPH)
+        return psa_mac_compute_hmac_sha512(attributes, key_data, *key_bytes, input, input_length,
+                                           mac, mac_size, mac_length);
+#elif IS_USED(MODULE_PSA_RIOT_MAC_HMAC_GENERIC)
         return psa_generic_hmac_compute(key_data, *key_bytes, alg, input, input_length,
                                         mac, mac_size, mac_length);
 #else
