@@ -249,7 +249,7 @@ psa_status_t psa_algorithm_dispatch_cipher_decrypt( const psa_key_attributes_t *
  * @param operation
  * @return psa_status_t
  */
-psa_status_t psa_algorithm_dispatch_key_derivation_abort(psa_mac_operation_t *operation);
+psa_status_t psa_algorithm_dispatch_key_derivation_abort(psa_key_derivation_operation_t *operation);
 
 /**
  * @brief   Dispatch call of a key derivation direct input pass function to a location-specific backend.
@@ -328,6 +328,7 @@ psa_status_t psa_algorithm_dispatch_key_derivation_output_bytes(psa_key_derivati
  */
 psa_status_t psa_algorithm_dispatch_key_derivation_output_key(psa_key_derivation_operation_t *operation,
                                                 const psa_key_attributes_t *attributes,
+                                                const psa_key_slot_t *slot,
                                                 psa_key_id_t *key,
                                                 psa_algorithm_t alg);
 

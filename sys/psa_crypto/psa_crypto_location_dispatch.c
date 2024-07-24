@@ -432,7 +432,7 @@ psa_status_t psa_location_dispatch_verify_message(  const psa_key_attributes_t *
 #endif /* MODULE_PSA_ASYMMETRIC */
 
 #if IS_USED(MODULE_PSA_KEY_DERIVATION)
-psa_status_t psa_location_dispatch_key_derivation_abort(psa_mac_operation_t *operation)
+psa_status_t psa_location_dispatch_key_derivation_abort(psa_key_derivation_operation_t *operation)
 {
     return psa_algorithm_dispatch_key_derivation_abort(operation);
 }
@@ -480,10 +480,11 @@ psa_status_t psa_location_dispatch_key_derivation_output_bytes(psa_key_derivatio
 
 psa_status_t psa_location_dispatch_key_derivation_output_key(psa_key_derivation_operation_t *operation,
                                                 const psa_key_attributes_t *attributes,
+                                                const psa_key_slot_t *slot,
                                                 psa_key_id_t *key,
                                                 psa_algorithm_t alg)
 {
-    return psa_algorithm_dispatch_key_derivation_output_key(operation, attributes, key, alg);
+    return psa_algorithm_dispatch_key_derivation_output_key(operation, attributes, slot, key, alg);
 
 }
 

@@ -1761,7 +1761,7 @@ psa_status_t psa_key_derivation_input_key(psa_key_derivation_operation_t *operat
 
     status = psa_location_dispatch_key_derivation_input_key(operation, step, slot->attr.type,
                                                slot->key.data,
-                                               slot->key.bytes, 
+                                               slot->key.data_len, 
                                                alg);  
     if (status != PSA_SUCCESS) {
         psa_key_derivation_abort(operation);
@@ -1844,8 +1844,9 @@ psa_status_t psa_key_derivation_output_key(const psa_key_attributes_t *attribute
                                            psa_key_derivation_operation_t *operation,
                                            psa_key_id_t *key)
 {
-    psa_status_t status;
     psa_algorithm_t alg = psa_kdf_get_alg(operation);
+    psa_status_t status;
+    psa_key_slot_t *slot;
 
     if (!lib_initialized)
     {
@@ -1865,8 +1866,13 @@ psa_status_t psa_key_derivation_output_key(const psa_key_attributes_t *attribute
         return PSA_ERROR_INVALID_ARGUMENT;
     }
 
+    status = psa_get_and_lock_key_slot_with_policy(*key, &slot, attributes->policy.usage, alg);
+    if (status != PSA_SUCCESS) {
+        return status;
+    }
 
-    status = psa_location_dispatch_key_derivation_output_key(operation, attributes, key, alg);
+    status = psa_location_dispatch_key_derivation_output_key(operation, attributes, slot, key, alg);
+    psa_unlock_key_slot(slot);
 
     if (status != PSA_SUCCESS) {
         psa_key_derivation_abort(operation);
@@ -1912,7 +1918,7 @@ psa_status_t psa_key_derivation_setup(psa_key_derivation_operation_t *operation,
 }
 
 /** Get key derivation algorithm from operation*/
-static psa_algorithm_t psa_kdf_get_alg(
+psa_algorithm_t psa_kdf_get_alg(
     const psa_key_derivation_operation_t *operation)
 {
     if (PSA_ALG_IS_KEY_AGREEMENT(operation->alg))

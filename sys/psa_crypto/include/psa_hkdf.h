@@ -34,6 +34,8 @@ extern "C" {
 #include <psa/crypto_types.h>
 #include <psa/crypto_struct.h>
 
+#include <stdbool.h>
+
 
 //TODO: MIGRATE SLOTS TO CRYPTO_ALGORITHM_DISPATCH!
 // #include "psa_crypto_slot_management.h"
@@ -44,17 +46,20 @@ extern "C" {
  * @brief   Structure containing the HKDF key derivation context.
  */
 typedef struct {
-    uint8_t *salt;              /**< Salt value for the HKDF operation. */
+    const uint8_t *salt;              /**< Salt value for the HKDF operation. */
     size_t salt_length;         /**< Length of the salt value. */
-    uint8_t *ikm;               /**< Input keying material for the HKDF operation. */
+    const uint8_t *ikm;               /**< Input keying material for the HKDF operation. */
     size_t ikm_length;          /**< Length of the input keying material. */
-    uint8_t *info;              /**< Non-secret value that is used in the expansion phase. */
+    const uint8_t *info;              /**< Non-secret value that is used in the expansion phase. */
     size_t info_length;         /**< Length of the info. */
     uint8_t *prk;               /**< Buffer to hold the pseudorandom key (PRK). */
     size_t prk_length;          /**< Length of the pseudorandom key. */
     psa_algorithm_t hash_alg;   /**< Hash algorithm used in the HKDF operation. */
     size_t hash_length;         /**< Length of the hash. */
 } psa_hkdf_key_derivation_ctx_t;
+
+psa_status_t psa_hkdf_key_derivation_setup(psa_key_derivation_operation_t *operation,
+                                                psa_algorithm_t alg);
 
 /**
  * @brief   Low level function to pass direct input to the key derivation operation
@@ -86,10 +91,14 @@ psa_status_t psa_hkdf_output_bytes(psa_key_derivation_operation_t *operation,
 
 psa_status_t psa_hkdf_output_key(psa_key_derivation_operation_t *operation,
                                  const psa_key_attributes_t *attributes,
+                                 const uint8_t *key_buffer,
+                                 size_t key_buffer_size,
                                  psa_key_id_t *key);
 
-psa_status_t psa_generate_derived_key(psa_key_slot_t *slot,
-                                      size_t bits,
+// const uint8_t *key_buffer
+psa_status_t psa_generate_derived_key(
+                                      size_t key_buffer_size,
+                                      const psa_key_attributes_t *attributes,
                                       psa_key_derivation_operation_t *operation,
                                       psa_key_id_t *key);
 

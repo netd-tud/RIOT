@@ -34,9 +34,9 @@ int main(void)
     ztimer_acquire(ZTIMER_USEC);
     ztimer_now_t start = ztimer_now(ZTIMER_USEC);
 
-    printf("KDF TEST RUNNING%d\n", status);
+    printf("KDF TEST RUNNING\n");
 
-    status = example_hmac_sha256();
+    status = example_hkdf_sha256();
     printf("HKDF SHA256 took %d us\n", (int)(ztimer_now(ZTIMER_USEC) - start));
     if (status != PSA_SUCCESS) {
         failed = true;
