@@ -46,11 +46,11 @@ extern "C" {
  * @brief   Structure containing the HKDF key derivation context.
  */
 typedef struct {
-    const uint8_t *salt;              /**< Salt value for the HKDF operation. */
+    const uint8_t *salt;        /**< Salt value for the HKDF operation. */
     size_t salt_length;         /**< Length of the salt value. */
-    const uint8_t *ikm;               /**< Input keying material for the HKDF operation. */
+    const uint8_t *ikm;         /**< Input keying material for the HKDF operation. */
     size_t ikm_length;          /**< Length of the input keying material. */
-    const uint8_t *info;              /**< Non-secret value that is used in the expansion phase. */
+    const uint8_t *info;        /**< Non-secret value that is used in the expansion phase. */
     size_t info_length;         /**< Length of the info. */
     uint8_t *prk;               /**< Buffer to hold the pseudorandom key (PRK). */
     size_t prk_length;          /**< Length of the pseudorandom key. */
@@ -59,7 +59,7 @@ typedef struct {
 } psa_hkdf_key_derivation_ctx_t;
 
 psa_status_t psa_hkdf_key_derivation_setup(psa_key_derivation_operation_t *operation,
-                                                psa_algorithm_t alg);
+                                           psa_algorithm_t alg);
 
 /**
  * @brief   Low level function to pass direct input to the key derivation operation
@@ -90,17 +90,13 @@ psa_status_t psa_hkdf_output_bytes(psa_key_derivation_operation_t *operation,
                                    psa_algorithm_t alg);
 
 psa_status_t psa_hkdf_output_key(psa_key_derivation_operation_t *operation,
-                                 const psa_key_attributes_t *attributes,
-                                 const uint8_t *key_buffer,
-                                 size_t key_buffer_size,
-                                 psa_key_id_t *key);
+                                 uint8_t *key_buffer,
+                                 size_t *key_buffer_size);
 
-// const uint8_t *key_buffer
 psa_status_t psa_generate_derived_key(
-                                      size_t key_buffer_size,
-                                      const psa_key_attributes_t *attributes,
-                                      psa_key_derivation_operation_t *operation,
-                                      psa_key_id_t *key);
+    psa_key_derivation_operation_t *operation,
+    uint8_t *key_buffer,
+    size_t key_buffer_size);
 
 psa_status_t hkdf_extract(psa_key_derivation_operation_t *operation,
                           const uint8_t *ikm, size_t ikm_length,

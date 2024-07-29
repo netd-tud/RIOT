@@ -39,8 +39,8 @@ psa_status_t example_hkdf_sha256(void)
 
     // init the PSA crypto library
     psa_status_t status = psa_crypto_init();
-    if (status != PSA_SUCCESS)
-    {
+
+    if (status != PSA_SUCCESS) {
         printf("psa_crypto_init failed with status: %d\n", status);
         return status;
     }
@@ -53,13 +53,16 @@ psa_status_t example_hkdf_sha256(void)
         0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
         0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
         0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
-        0x0b};
+        0x0b
+    };
     static const unsigned char salt[] = {
         0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
-        0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c};
+        0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c
+    };
     static const unsigned char info[] = {
         0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6,
-        0xf7, 0xf8, 0xf9};
+        0xf7, 0xf8, 0xf9
+    };
 
     psa_algorithm_t alg = PSA_ALG_HKDF(PSA_ALG_SHA_256);
 
@@ -75,46 +78,40 @@ psa_status_t example_hkdf_sha256(void)
     psa_set_key_algorithm(&attributes, alg);
     psa_set_key_type(&attributes, PSA_KEY_TYPE_DERIVE);
     status = psa_import_key(&attributes, key, sizeof(key), &base_key);
-    if (status != PSA_SUCCESS)
-    {
+    if (status != PSA_SUCCESS) {
         printf("Failed to import a key%d\n", status);
         return status;
     }
     psa_reset_key_attributes(&attributes);
 
     status = psa_key_derivation_setup(&operation, alg);
-    if (status != PSA_SUCCESS)
-    {
+    if (status != PSA_SUCCESS) {
         printf("Failed to begin key derivation%d\n", status);
         return status;
     }
     status = psa_key_derivation_set_capacity(&operation, capacity);
-    if (status != PSA_SUCCESS)
-    {
+    if (status != PSA_SUCCESS) {
         printf("Failed to set capacity%d\n", status);
         return status;
     }
     status = psa_key_derivation_input_bytes(&operation,
                                             PSA_KEY_DERIVATION_INPUT_SALT,
                                             salt, sizeof(salt));
-    if (status != PSA_SUCCESS)
-    {
+    if (status != PSA_SUCCESS) {
         printf("Failed to input salt (extract)%d\n", status);
         return status;
     }
     status = psa_key_derivation_input_key(&operation,
                                           PSA_KEY_DERIVATION_INPUT_SECRET,
                                           base_key);
-    if (status != PSA_SUCCESS)
-    {
+    if (status != PSA_SUCCESS) {
         printf("Failed to input key (extract)%d\n", status);
         return status;
     }
     status = psa_key_derivation_input_bytes(&operation,
                                             PSA_KEY_DERIVATION_INPUT_INFO,
                                             info, sizeof(info));
-    if (status != PSA_SUCCESS)
-    {
+    if (status != PSA_SUCCESS) {
         printf("Failed to input info (expand)%d\n", status);
         return status;
     }
@@ -122,10 +119,14 @@ psa_status_t example_hkdf_sha256(void)
     psa_set_key_algorithm(&attributes, PSA_ALG_CTR);
     psa_set_key_type(&attributes, PSA_KEY_TYPE_AES);
     psa_set_key_bits(&attributes, 128);
+
+    psa_key_lifetime_t lifetime = PSA_KEY_LIFETIME_FROM_PERSISTENCE_AND_LOCATION
+                                      (PSA_KEY_LIFETIME_PERSISTENT, PSA_KEY_LOCATION_LOCAL_STORAGE);
+    psa_set_key_lifetime(&attributes, lifetime);
+
     status = psa_key_derivation_output_key(&attributes, &operation,
                                            &derived_key);
-    if (status != PSA_SUCCESS)
-    {
+    if (status != PSA_SUCCESS) {
         printf("Failed to derive key%d\n", status);
         return status;
     }
@@ -141,14 +142,12 @@ psa_status_t example_hkdf_sha256(void)
     }
 
     status = psa_export_key(derived_key, buffer, sizeof(buffer), &data_length);
-    if (status != PSA_SUCCESS)
-    {
+    if (status != PSA_SUCCESS) {
         printf("Failed to export derived key%d\n", status);
         return status;
     }
 
-    for (size_t i = 0; i < data_length; i++)
-    {
+    for (size_t i = 0; i < data_length; i++) {
         printf("%02X ", buffer[i]);
     }
     printf("\n");

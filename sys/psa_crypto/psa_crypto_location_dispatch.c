@@ -479,12 +479,12 @@ psa_status_t psa_location_dispatch_key_derivation_output_bytes(psa_key_derivatio
 }
 
 psa_status_t psa_location_dispatch_key_derivation_output_key(psa_key_derivation_operation_t *operation,
-                                                const psa_key_attributes_t *attributes,
-                                                const psa_key_slot_t *slot,
-                                                psa_key_id_t *key,
-                                                psa_algorithm_t alg)
+                                                // const psa_key_attributes_t *attributes,
+                                                psa_algorithm_t alg,
+                                                uint8_t *key_data,
+                                                size_t *key_bytes)
 {
-    return psa_algorithm_dispatch_key_derivation_output_key(operation, attributes, slot, key, alg);
+    return psa_algorithm_dispatch_key_derivation_output_key(operation, alg, key_data, key_bytes);
 
 }
 

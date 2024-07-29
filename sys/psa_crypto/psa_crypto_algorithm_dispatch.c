@@ -275,13 +275,13 @@ psa_status_t psa_algorithm_dispatch_sign_hash(  const psa_key_attributes_t *attr
 }
 
 psa_status_t psa_algorithm_dispatch_sign_message(const psa_key_attributes_t *attributes,
-                                                psa_algorithm_t alg,
-                                                const psa_key_slot_t *slot,
-                                                const uint8_t *input,
-                                                size_t input_length,
-                                                uint8_t *signature,
-                                                size_t signature_size,
-                                                size_t *signature_length)
+                                                 psa_algorithm_t alg,
+                                                 const psa_key_slot_t *slot,
+                                                 const uint8_t *input,
+                                                 size_t input_length,
+                                                 uint8_t *signature,
+                                                 size_t signature_size,
+                                                 size_t *signature_length)
 {
     psa_asym_key_t asym_key = PSA_INVALID_OPERATION;
     uint8_t *key_data = NULL;
@@ -304,18 +304,18 @@ psa_status_t psa_algorithm_dispatch_sign_message(const psa_key_attributes_t *att
 #if IS_USED(MODULE_PSA_ASYMMETRIC_ECC_P192R1)
     case PSA_ECC_P192_R1:
         return psa_ecc_p192r1_sign_message(attributes, alg, key_data, *key_bytes, input, input_length,
-                                        signature, signature_size, signature_length);
+                                           signature, signature_size, signature_length);
 #endif
 #if IS_USED(MODULE_PSA_ASYMMETRIC_ECC_P256R1)
     case PSA_ECC_P256_R1:
         return psa_ecc_p256r1_sign_message(attributes, alg, key_data, *key_bytes, input, input_length,
-                                        signature, signature_size, signature_length);
+                                           signature, signature_size, signature_length);
 #endif
 #if IS_USED(MODULE_PSA_ASYMMETRIC_ECC_ED25519)
     case PSA_ECC_ED25519:
         psa_get_public_key_data_from_key_slot(slot, &pub_key_data, &pub_key_bytes);
         return psa_ecc_ed25519_sign_message(key_data, *key_bytes, pub_key_data, *pub_key_bytes, input, input_length,
-                                    signature, signature_size, signature_length);
+                                            signature, signature_size, signature_length);
 #endif
     default:
         (void)alg;
@@ -377,12 +377,12 @@ psa_status_t psa_algorithm_dispatch_verify_hash(  const psa_key_attributes_t *at
 }
 
 psa_status_t psa_algorithm_dispatch_verify_message(const psa_key_attributes_t *attributes,
-                                                  psa_algorithm_t alg,
-                                                  const psa_key_slot_t *slot,
-                                                  const uint8_t *input,
-                                                  size_t input_length,
-                                                  const uint8_t *signature,
-                                                  size_t signature_length)
+                                                   psa_algorithm_t alg,
+                                                   const psa_key_slot_t *slot,
+                                                   const uint8_t *input,
+                                                   size_t input_length,
+                                                   const uint8_t *signature,
+                                                   size_t signature_length)
 {
     psa_asym_key_t asym_key = PSA_INVALID_OPERATION;
     uint8_t *pubkey_data = NULL;
@@ -403,17 +403,17 @@ psa_status_t psa_algorithm_dispatch_verify_message(const psa_key_attributes_t *a
 #if IS_USED(MODULE_PSA_ASYMMETRIC_ECC_P192R1)
     case PSA_ECC_P192_R1:
         return psa_ecc_p192r1_verify_message(attributes, alg, pubkey_data, *pubkey_data_len, input,
-                                        input_length, signature, signature_length);
+                                             input_length, signature, signature_length);
 #endif
 #if IS_USED(MODULE_PSA_ASYMMETRIC_ECC_P256R1)
     case PSA_ECC_P256_R1:
         return psa_ecc_p256r1_verify_message(attributes, alg, pubkey_data, *pubkey_data_len, input,
-                                        input_length, signature, signature_length);
+                                             input_length, signature, signature_length);
 #endif
 #if IS_USED(MODULE_PSA_ASYMMETRIC_ECC_ED25519)
     case PSA_ECC_ED25519:
         return psa_ecc_ed25519_verify_message(pubkey_data, *pubkey_data_len, input,
-                                        input_length, signature, signature_length);
+                                              input_length, signature, signature_length);
 #endif
     default:
         (void)alg;
@@ -651,47 +651,52 @@ psa_status_t psa_algorithm_dispatch_key_derivation_abort(psa_key_derivation_oper
     return psa_kdf_abort(operation);
 }
 
-psa_status_t psa_algorithm_dispatch_key_derivation_input_bytes(psa_key_derivation_operation_t *operation,
-                                                psa_key_derivation_step_t step,
-                                                const uint8_t *data,
-                                                size_t data_length,
-                                                psa_algorithm_t alg)
+psa_status_t psa_algorithm_dispatch_key_derivation_input_bytes(
+    psa_key_derivation_operation_t *operation,
+    psa_key_derivation_step_t step,
+    const uint8_t *data,
+    size_t data_length,
+    psa_algorithm_t alg)
 {
     if (PSA_ALG_IS_HKDF(alg)) {
-    
+
 #if IS_USED(MODULE_PSA_KDF_HKDF)
         return psa_hkdf_input_bytes(operation, step, data, data_length, alg);
 #endif
         return PSA_ERROR_INVALID_ARGUMENT;
-    } else {
+    }
+    else {
         return PSA_ERROR_NOT_SUPPORTED;
     }
 }
 
-psa_status_t psa_algorithm_dispatch_key_derivation_input_key(psa_key_derivation_operation_t *operation,
-                                                psa_key_derivation_step_t step,
-                                                psa_key_type_t key_type,
-                                                const uint8_t *data,
-                                                size_t data_length,
-                                                psa_algorithm_t alg)
+psa_status_t psa_algorithm_dispatch_key_derivation_input_key(
+    psa_key_derivation_operation_t *operation,
+    psa_key_derivation_step_t step,
+    psa_key_type_t key_type,
+    const uint8_t *data,
+    size_t data_length,
+    psa_algorithm_t alg)
 {
     if (PSA_ALG_IS_HKDF(alg)) {
-    
+
 #if IS_USED(MODULE_PSA_KDF_HKDF)
         return psa_hkdf_input_key(operation, step, key_type, data, data_length, alg);
 #endif
         return PSA_ERROR_INVALID_ARGUMENT;
-    } else {
+    }
+    else {
         return PSA_ERROR_NOT_SUPPORTED;
     }
 
 }
 
-psa_status_t psa_algorithm_dispatch_key_derivation_key_agreement(psa_key_derivation_operation_t *operation,
-                                                psa_key_derivation_step_t step,
-                                                psa_key_id_t private_key,
-                                                const uint8_t *peer_key,
-                                                size_t peer_key_length)
+psa_status_t psa_algorithm_dispatch_key_derivation_key_agreement(
+    psa_key_derivation_operation_t *operation,
+    psa_key_derivation_step_t step,
+    psa_key_id_t private_key,
+    const uint8_t *peer_key,
+    size_t peer_key_length)
 {
     (void)operation;
     (void)step;
@@ -701,57 +706,56 @@ psa_status_t psa_algorithm_dispatch_key_derivation_key_agreement(psa_key_derivat
     return PSA_ERROR_NOT_SUPPORTED;
 }
 
-psa_status_t psa_algorithm_dispatch_key_derivation_output_bytes(psa_key_derivation_operation_t *operation,
-                                                uint8_t *output,
-                                                size_t output_length,
-                                                psa_algorithm_t alg)
+psa_status_t psa_algorithm_dispatch_key_derivation_output_bytes(
+    psa_key_derivation_operation_t *operation,
+    uint8_t *output,
+    size_t output_length,
+    psa_algorithm_t alg)
 {
 
     if (PSA_ALG_IS_HKDF(alg)) {
-    
+
 #if IS_USED(MODULE_PSA_KDF_HKDF)
         return psa_hkdf_output_bytes(operation, output, output_length, alg);
 #endif
         return PSA_ERROR_INVALID_ARGUMENT;
-    } else {
+    }
+    else {
         return PSA_ERROR_NOT_SUPPORTED;
     }
 
 }
 
 psa_status_t psa_algorithm_dispatch_key_derivation_output_key(
-                                                psa_key_derivation_operation_t *operation,
-                                                const psa_key_attributes_t *attributes,
-                                                const psa_key_slot_t *slot,
-                                                psa_key_id_t *key,
-                                                psa_algorithm_t alg)
+    psa_key_derivation_operation_t *operation,
+    psa_algorithm_t alg,
+    uint8_t *key_data,
+    size_t *key_bytes)
 {
-    uint8_t *key_data;
-    size_t *key_bytes;
-
-    psa_get_key_data_from_key_slot(slot, &key_data, &key_bytes);
 
     if (PSA_ALG_IS_HKDF(alg)) {
-    
-#if IS_USED(MODULE_PSA_KDF_HKDF) 
-        return psa_hkdf_output_key(operation, attributes, key_data, *key_bytes, key);
+
+#if IS_USED(MODULE_PSA_KDF_HKDF)
+        return psa_hkdf_output_key(operation, key_data, key_bytes);
 #endif
         return PSA_ERROR_INVALID_ARGUMENT;
-    } else {
+    }
+    else {
         return PSA_ERROR_NOT_SUPPORTED;
     }
 }
 
 psa_status_t psa_algorithm_dispatch_key_derivation_setup(psa_key_derivation_operation_t *operation,
-                                                psa_algorithm_t alg)
+                                                         psa_algorithm_t alg)
 {
 
-if (PSA_ALG_IS_HKDF(alg)){
-    #if IS_USED(MODULE_PSA_KDF_HKDF) 
+    if (PSA_ALG_IS_HKDF(alg)) {
+    #if IS_USED(MODULE_PSA_KDF_HKDF)
         return psa_hkdf_key_derivation_setup(operation, alg);
 #endif
         return PSA_ERROR_INVALID_ARGUMENT;
-    } else {
+    }
+    else {
         return PSA_ERROR_NOT_SUPPORTED;
     }
 }

@@ -17,6 +17,7 @@ int main(void)
     printf("KDF TEST RUNNING\n");
 
     status = example_hkdf_sha256();
+    printf("HKDF SHA256 took %d us\n", (int)(ztimer_now(ZTIMER_USEC) - start));
     if (status != PSA_SUCCESS) {
         failed = true;
         printf("HKDF SHA256 failed: %s\n", psa_status_to_humanly_readable(status));
