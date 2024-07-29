@@ -3329,6 +3329,11 @@ psa_status_t psa_key_derivation_verify_bytes(psa_key_derivation_operation_t *ope
  */
 psa_status_t psa_key_derivation_verify_key(psa_key_derivation_operation_t *operation,
                                            psa_key_id_t expected);
+
+
+psa_algorithm_t psa_kdf_get_alg(
+    const psa_key_derivation_operation_t *operation);
+
 #endif /* PSA_CRYPTO_KEY_DERIVATION */
 
 #if IS_USED(MODULE_PSA_MAC) || defined(DOXYGEN)

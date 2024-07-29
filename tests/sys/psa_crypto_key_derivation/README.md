@@ -1,4 +1,3 @@
-# PSA Crypto Mac Test
+# PSA Crypto Key Derivation Test
 
-This is a configuration test for only the mac of the PSA crypto module.
-It is based off the [psa_crypto example](../../../examples/psa_crypto/README.md).
+This is a configuration test for only the key derivation of the PSA crypto module.

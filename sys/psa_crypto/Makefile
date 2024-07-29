@@ -16,4 +16,12 @@ ifneq (,$(filter psa_se_mgmt,$(USEMODULE)))
   DIRS += psa_se_mgmt
 endif
 
+ifneq (,$(filter psa_key_derivation,$(USEMODULE)))
+  DIRS += psa_key_derivation
+endif
+
+ifneq (,$(filter psa_kdf_hkdf,$(USEMODULE)))
+  DIRS += psa_kdf_hkdf
+endif
+
 include $(RIOTBASE)/Makefile.base

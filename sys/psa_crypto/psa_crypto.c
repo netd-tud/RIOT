@@ -1019,6 +1019,8 @@ static psa_status_t psa_validate_unstructured_key_size(psa_key_type_t type, size
             return PSA_ERROR_INVALID_ARGUMENT;
         }
         break;
+    case PSA_KEY_TYPE_DERIVE:
+        break;
     default:
         (void)bits;
         return PSA_ERROR_NOT_SUPPORTED;
@@ -1178,6 +1180,8 @@ static psa_status_t psa_finish_key_creation(psa_key_slot_t *slot, psa_se_drv_dat
 
     (void)driver;
     psa_status_t unlock_status = psa_unlock_key_slot(slot);
+    printf("psa_finish_key_creation status: %s\n", psa_status_to_humanly_readable(unlock_status));
+
     return ((status == PSA_SUCCESS) ? unlock_status : status);
 }
 
@@ -1528,6 +1532,7 @@ psa_status_t psa_builtin_import_key(const psa_key_attributes_t *attributes,
     }
 
     if (data_length == 0) {
+        printf("psa_builtin_import_key data_length == 0\n");
         return PSA_ERROR_NOT_SUPPORTED;
     }
 
@@ -1542,6 +1547,7 @@ psa_status_t psa_builtin_import_key(const psa_key_attributes_t *attributes,
 
         status = psa_validate_unstructured_key_size(type, *bits);
         if (status != PSA_SUCCESS) {
+            printf("psa_builtin_import_key psa_validate_unstructured_key_size failed\n");
             return status;
         }
 
@@ -1558,6 +1564,7 @@ psa_status_t psa_builtin_import_key(const psa_key_attributes_t *attributes,
 
         /* key material too large to be represented */
         if (data_length > PSA_EXPORT_PUBLIC_KEY_MAX_SIZE) {
+            printf("psa_builtin_import_key data_length > PSA_EXPORT_PUBLIC_KEY_MAX_SIZE\n");
             return PSA_ERROR_NOT_SUPPORTED;
         }
 
@@ -1608,6 +1615,7 @@ psa_status_t psa_import_key(const psa_key_attributes_t *attributes,
 
     if (status != PSA_SUCCESS) {
         psa_fail_key_creation(slot, driver);
+        printf("psa_import_key psa_location_dispatch_import_key failed\n");
         return status;
     }
 
@@ -1615,14 +1623,19 @@ psa_status_t psa_import_key(const psa_key_attributes_t *attributes,
         slot->attr.bits = (psa_key_bits_t)bits;
     }
     else if (bits != slot->attr.bits) {
+        printf("psa_import_key bits != slot->attr.bits\n");
         psa_fail_key_creation(slot, driver);
         return PSA_ERROR_INVALID_ARGUMENT;
     }
 
     status = psa_finish_key_creation(slot, driver, key);
+    
     if (status != PSA_SUCCESS) {
+        printf("psa_import_key psa_finish_key_creation status = %d\n", status);
         psa_fail_key_creation(slot, driver);
     }
+
+    printf("psa_import_key status: %s\n", psa_status_to_humanly_readable(status));
 
     return status;
 }

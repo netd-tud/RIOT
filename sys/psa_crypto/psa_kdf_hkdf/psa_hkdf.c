@@ -26,6 +26,7 @@
 #include "psa/crypto_struct.h"
 #include "psa/crypto_types.h"
 #include "psa_hkdf.h"
+#include <math.h>
 #include "string_utils.h"
 #include "psa_crypto_slot_management.h"
 
@@ -51,7 +52,7 @@ psa_status_t psa_hkdf_key_derivation_setup(psa_key_derivation_operation_t *opera
     } else
     if (PSA_ALG_IS_HKDF_EXPAND(alg)) {
         psa_key_derivation_set_capacity(operation, 255 * hash_length);
-    } else
+    } 
 
     return PSA_SUCCESS;
 }
@@ -347,6 +348,7 @@ psa_status_t psa_generate_derived_key(
 
     if (status != PSA_SUCCESS)
     {
+        psa_destroy_key(*key);
         return status;
     }
 
@@ -378,7 +380,7 @@ psa_status_t psa_generate_derived_key(
     // }
 
     // bytes = storage_size;
-
+    return status;
 }
 
 psa_status_t hkdf_extract(psa_key_derivation_operation_t *operation,
@@ -389,27 +391,42 @@ psa_status_t hkdf_extract(psa_key_derivation_operation_t *operation,
     psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
     psa_key_id_t key_id;
     psa_status_t status;
+    size_t actual_hash_length;
 
     // If salt is NULL or has zero length, set it to a string of zeroes
     uint8_t *allocated_salt = NULL;
     if (salt == NULL || salt_length == 0)
     {
         salt_length = operation->ctx.hkdf.hash_length;
-        salt = calloc(1, salt_length);
-        if (salt == NULL)
+        allocated_salt = calloc(1, salt_length);
+        if (allocated_salt == NULL)
         {
             return PSA_ERROR_INSUFFICIENT_MEMORY;
         }
-        allocated_salt = salt;
     }
     else if (salt_length > block_size)
     {
         // If salt exceeds the block size of the hash function, hash it
-        status = psa_hash_compute(operation->ctx.hkdf.hash_alg, salt, salt_length, salt, &salt_length);
+        allocated_salt = malloc(salt_length);
+        if (allocated_salt == NULL)
+        {
+            return PSA_ERROR_INSUFFICIENT_MEMORY;
+        }
+        status = psa_hash_compute(operation->ctx.hkdf.hash_alg, salt, salt_length, allocated_salt, salt_length, &actual_hash_length);
         if (status != PSA_SUCCESS)
         {
+            free(allocated_salt);
             return status;
         }
+    }
+    else
+    {
+        allocated_salt = malloc(salt_length);
+        if (allocated_salt == NULL)
+        {
+            return PSA_ERROR_INSUFFICIENT_MEMORY;
+        }
+        memcpy(allocated_salt, salt, salt_length);
     }
 
     psa_set_key_algorithm(&attributes, PSA_ALG_HMAC(operation->ctx.hkdf.hash_alg));
@@ -417,7 +434,7 @@ psa_status_t hkdf_extract(psa_key_derivation_operation_t *operation,
     psa_set_key_type(&attributes, PSA_KEY_TYPE_HMAC);
     psa_set_key_usage_flags(&attributes, PSA_KEY_USAGE_SIGN_HASH);
 
-    status = psa_import_key(&attributes, salt, salt_length, &key_id);
+    status = psa_import_key(&attributes, allocated_salt, salt_length, &key_id);
     if (status != PSA_SUCCESS)
     {
         return status;
@@ -447,8 +464,9 @@ psa_status_t hkdf_expand(psa_key_derivation_operation_t *operation,
     uint8_t hash_len = operation->ctx.hkdf.hash_length;
     size_t info_len = operation->ctx.hkdf.info_length;
     const uint8_t *info = operation->ctx.hkdf.info;
-    size_t N = (size_t)ceil((double)output_length/hash_len)
-    uint8_t T[hash_len] = {0};
+    size_t N = (size_t)ceil((double)output_length/hash_len);
+    uint8_t T[hash_len];
+    T[0] = '\0';
     size_t T_len = 0;
     uint8_t counter = 1;
     psa_status_t status;
@@ -478,7 +496,7 @@ psa_status_t hkdf_expand(psa_key_derivation_operation_t *operation,
         data[T_len + info_len] = counter++;     // Copy the counter to the data buffer
 
         // Calculate HMAC of the concatenated data using the PRK as the key
-        status = psa_mac_compute(prk_id, PSA_ALG_HMAC(operation->ctx.hkdf.hash), data, T_len + info_len + 1, T, sizeof(T), &T_len);
+        status = psa_mac_compute(prk_id, PSA_ALG_HMAC(operation->ctx.hkdf.hash_alg), data, T_len + info_len + 1, T, sizeof(T), &T_len);
         if (status != PSA_SUCCESS)
         {
             return status;
