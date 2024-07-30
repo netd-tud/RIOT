@@ -38,6 +38,7 @@ psa_status_t psa_hkdf_key_derivation_setup(psa_key_derivation_operation_t *opera
 {
     static uint8_t hmac[PSA_HASH_MAX_SIZE];
 
+    /* Set the properties of the hkdf operation */
     operation->alg = alg;
     operation->ctx.hkdf.prk = hmac;
     operation->ctx.hkdf.prk_length = PSA_HASH_MAX_SIZE;
@@ -46,6 +47,7 @@ psa_status_t psa_hkdf_key_derivation_setup(psa_key_derivation_operation_t *opera
 
     size_t hash_length = operation->ctx.hkdf.hash_length;
 
+    /* Set the capacity of the key derivation operation */
     if (PSA_ALG_IS_HKDF(alg)) {
         psa_key_derivation_set_capacity(operation, 255 * hash_length);
     }
@@ -70,7 +72,7 @@ psa_status_t psa_hkdf_input_bytes(psa_key_derivation_operation_t *operation,
 {
     psa_status_t status = PSA_SUCCESS;
 
-    /** The operation state is not valid for this input step*/
+    /** Check if operation state is valid for this input step*/
     if (!is_valid_step_for_current_state(operation->state, step)) {
         return PSA_ERROR_BAD_STATE;
     }
@@ -125,7 +127,7 @@ psa_status_t psa_hkdf_input_key(psa_key_derivation_operation_t *operation,
 {
     psa_status_t status = PSA_SUCCESS;
 
-    /** The operation state is not valid for this input step*/
+    /** Check if operation state is valid for this input step*/
     if (!is_valid_step_for_current_state(operation->state, step)) {
         return PSA_ERROR_BAD_STATE;
     }
@@ -143,7 +145,6 @@ psa_status_t psa_hkdf_input_key(psa_key_derivation_operation_t *operation,
         if (!(key_type == PSA_KEY_TYPE_RAW_DATA)) {
             return PSA_ERROR_NOT_PERMITTED;
         }
-
         operation->ctx.hkdf.salt = data;
         operation->ctx.hkdf.salt_length = data_length;
         operation->state = STATE_SALT_PROVIDED;
@@ -200,9 +201,9 @@ psa_status_t psa_hkdf_output_bytes(psa_key_derivation_operation_t *operation,
                                    size_t output_length,
                                    psa_algorithm_t alg)
 {
-
     psa_status_t status = PSA_SUCCESS;
 
+    /* Expand step can't be called before the info is provided */
     if (operation->state != STATE_INFO_PROVIDED) {
         return PSA_ERROR_BAD_STATE;
     }
@@ -213,7 +214,6 @@ psa_status_t psa_hkdf_output_bytes(psa_key_derivation_operation_t *operation,
     }
 #endif /* PSA_ALG_HKDF_EXTRACT */
 
-    // Call the HKDF expand function to generate the output bytes
     status = hkdf_expand(operation, output, output_length);
     if (status != PSA_SUCCESS) {
         return status;
@@ -233,28 +233,22 @@ psa_status_t psa_hkdf_output_key(psa_key_derivation_operation_t *operation,
     status = psa_generate_derived_key(operation, key_buffer, *key_buffer_size);
 
     return status;
-
 }
 
-psa_status_t psa_generate_derived_key(
-
-    psa_key_derivation_operation_t *operation,
-    uint8_t *key_buffer,
-    size_t key_buffer_size)
+psa_status_t psa_generate_derived_key(psa_key_derivation_operation_t *operation,
+                                      uint8_t *key_buffer,
+                                      size_t key_buffer_size)
 {
-
-
     size_t bits = key_buffer_size * 8; // Size of the key in bits
-
 
     psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
 
-    // The key size must be a multiple of 8 bits
+    /* The key size must be a multiple of 8 bits */
     if (bits % 8 != 0) {
         return PSA_ERROR_INVALID_ARGUMENT;
     }
 
-    // Allocate a buffer of size bytes to store the derived key data
+    /* Allocate a buffer of size bytes to store the derived key data */
     key_buffer = calloc(1, key_buffer_size);
     if (key_buffer == NULL) {
         return PSA_ERROR_INSUFFICIENT_MEMORY;
@@ -267,7 +261,6 @@ psa_status_t psa_generate_derived_key(
     }
 
     return status;
-
 }
 
 psa_status_t hkdf_extract(psa_key_derivation_operation_t *operation,
@@ -280,7 +273,7 @@ psa_status_t hkdf_extract(psa_key_derivation_operation_t *operation,
     psa_status_t status;
     size_t actual_hash_length;
 
-    // If salt is NULL or has zero length, set it to a string of zeroes
+    /* If salt is NULL or has zero length, set it to a string of zeroes */
     uint8_t *allocated_salt = NULL;
 
     if (salt == NULL || salt_length == 0) {
@@ -291,7 +284,8 @@ psa_status_t hkdf_extract(psa_key_derivation_operation_t *operation,
         }
     }
     else if (salt_length > block_size) {
-        // If salt exceeds the block size of the hash function, hash it
+
+        /* If salt exceeds the block size of the hash function, hash it */
         allocated_salt = malloc(salt_length);
         if (allocated_salt == NULL) {
             return PSA_ERROR_INSUFFICIENT_MEMORY;
@@ -332,14 +326,6 @@ psa_status_t hkdf_extract(psa_key_derivation_operation_t *operation,
     return PSA_SUCCESS;
 }
 
-/**
- * @brief Perform the HKDF-Expand operation
- *
- * @param operation The key derivation operation
- * @param output The output buffer
- * @param output_length The length of the output buffer
- * @return psa_status_t
- */
 psa_status_t hkdf_expand(psa_key_derivation_operation_t *operation,
                          uint8_t *output, size_t output_length)
 {
@@ -357,54 +343,53 @@ psa_status_t hkdf_expand(psa_key_derivation_operation_t *operation,
     psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
     psa_key_id_t prk_id;
 
-    //set prk key attributes
+    /* Set PRK key attributes */
     psa_set_key_algorithm(&attributes, PSA_ALG_HMAC(operation->ctx.hkdf.hash_alg));
     psa_set_key_bits(&attributes, PSA_BYTES_TO_BITS(operation->ctx.hkdf.prk_length));
     psa_set_key_type(&attributes, PSA_KEY_TYPE_HMAC);
     psa_set_key_usage_flags(&attributes, PSA_KEY_USAGE_SIGN_HASH);
 
-    // create key from the PRK
+    /* Create key from the PRK */
     status = psa_import_key(&attributes, operation->ctx.hkdf.prk, operation->ctx.hkdf.prk_length,
                             &prk_id);
     if (status != PSA_SUCCESS) {
         return status;
     }
 
-    // expand the key
-    for (size_t i = 0; i < N; i++) {            // Concatenate the previous T, info and the counter
-        uint8_t data[hash_len + info_len + 1];  // Buffer to hold the concatenated data
-        memcpy(data, T, T_len);                 // Copy the previous T to the data buffer
-        memcpy(data + T_len, info, info_len);   // Copy the info to the data buffer
-        data[T_len + info_len] = counter++;     // Copy the counter to the data buffer
+    /* Expand the key */
+    for (size_t i = 0; i < N; i++) {            /*< Concatenate the previous T, info and the counter */
+        uint8_t data[hash_len + info_len + 1];  /*< Buffer to hold the concatenated data */
+        memcpy(data, T, T_len);                 /*< Copy the previous T to the data buffer */
+        memcpy(data + T_len, info, info_len);   /*< Copy the info to the data buffer */
+        data[T_len + info_len] = counter++;     /*< Copy the counter to the data buffer */
 
-        // Calculate HMAC of the concatenated data using the PRK as the key
+        /* Calculate HMAC of the concatenated data using the PRK as the key */
         status = psa_mac_compute(prk_id, PSA_ALG_HMAC(operation->ctx.hkdf.hash_alg), data,
                                  T_len + info_len + 1, T, sizeof(T), &T_len);
         if (status != PSA_SUCCESS) {
             return status;
         }
-        // Copy the first min(T_len, output_length) bytes of T to the output
+        /* Copy the first min(T_len, output_length) bytes of T to the output */
         memcpy(output + i * hash_len, T, i == N - 1 ? output_length - i * hash_len : hash_len);
     }
 
     return status;
-
 }
 
 bool is_valid_step_for_current_state(operation_state_t state, psa_key_derivation_step_t step)
 {
     switch (state) {
     case STATE_NONE:
-        /** At the start either the salt or the secret can be provided*/
+        /* At the start either the salt or the secret can be provided*/
         return step == PSA_KEY_DERIVATION_INPUT_SALT || step == PSA_KEY_DERIVATION_INPUT_SECRET;
-    case STATE_SALT_PROVIDED:   /** After salt */
-                                /** After the salt, either the secret or the info can be provided*/
+    case STATE_SALT_PROVIDED:
+        /* After the salt, either the secret or the info can be provided*/
         return step == PSA_KEY_DERIVATION_INPUT_SECRET || step == PSA_KEY_DERIVATION_INPUT_INFO;
     case STATE_SECRET_PROVIDED:
-        /** After the secret, only the info can be provided*/
+        /* After the secret, only the info can be provided*/
         return step == PSA_KEY_DERIVATION_INPUT_INFO;
     case STATE_INFO_PROVIDED:
-        /** After the info, no more steps are valid*/
+        /* After the info, no more steps are valid*/
         return false;
     default:
         return false;

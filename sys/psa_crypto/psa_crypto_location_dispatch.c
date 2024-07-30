@@ -457,7 +457,6 @@ psa_status_t psa_location_dispatch_key_derivation_input_key(psa_key_derivation_o
 
 }
 
-
 psa_status_t psa_location_dispatch_key_derivation_key_agreement(psa_key_derivation_operation_t *operation,
                                               psa_key_derivation_step_t step,
                                               psa_key_id_t private_key,
@@ -467,7 +466,6 @@ psa_status_t psa_location_dispatch_key_derivation_key_agreement(psa_key_derivati
     return psa_algorithm_dispatch_key_derivation_key_agreement(operation, step, private_key, peer_key, peer_key_length);
 
 }
-
 
 psa_status_t psa_location_dispatch_key_derivation_output_bytes(psa_key_derivation_operation_t *operation,
                                              uint8_t *output,
@@ -493,9 +491,7 @@ psa_status_t psa_location_dispatch_key_derivation_setup(psa_key_derivation_opera
 {
     return psa_algorithm_dispatch_key_derivation_setup(operation, alg);
 }
-
 #endif /* MODULE_PSA_KEY_DERIVATION */
-
 
 #if IS_USED(MODULE_PSA_MAC)
 psa_status_t psa_location_dispatch_mac_compute(const psa_key_id_t key,

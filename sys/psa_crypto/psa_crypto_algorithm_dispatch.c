@@ -659,7 +659,6 @@ psa_status_t psa_algorithm_dispatch_key_derivation_input_bytes(
     psa_algorithm_t alg)
 {
     if (PSA_ALG_IS_HKDF(alg)) {
-
 #if IS_USED(MODULE_PSA_KDF_HKDF)
         return psa_hkdf_input_bytes(operation, step, data, data_length, alg);
 #endif
@@ -679,7 +678,6 @@ psa_status_t psa_algorithm_dispatch_key_derivation_input_key(
     psa_algorithm_t alg)
 {
     if (PSA_ALG_IS_HKDF(alg)) {
-
 #if IS_USED(MODULE_PSA_KDF_HKDF)
         return psa_hkdf_input_key(operation, step, key_type, data, data_length, alg);
 #endif
@@ -688,7 +686,6 @@ psa_status_t psa_algorithm_dispatch_key_derivation_input_key(
     else {
         return PSA_ERROR_NOT_SUPPORTED;
     }
-
 }
 
 psa_status_t psa_algorithm_dispatch_key_derivation_key_agreement(
@@ -712,9 +709,7 @@ psa_status_t psa_algorithm_dispatch_key_derivation_output_bytes(
     size_t output_length,
     psa_algorithm_t alg)
 {
-
     if (PSA_ALG_IS_HKDF(alg)) {
-
 #if IS_USED(MODULE_PSA_KDF_HKDF)
         return psa_hkdf_output_bytes(operation, output, output_length, alg);
 #endif
@@ -723,7 +718,6 @@ psa_status_t psa_algorithm_dispatch_key_derivation_output_bytes(
     else {
         return PSA_ERROR_NOT_SUPPORTED;
     }
-
 }
 
 psa_status_t psa_algorithm_dispatch_key_derivation_output_key(
@@ -732,9 +726,7 @@ psa_status_t psa_algorithm_dispatch_key_derivation_output_key(
     uint8_t *key_data,
     size_t *key_bytes)
 {
-
     if (PSA_ALG_IS_HKDF(alg)) {
-
 #if IS_USED(MODULE_PSA_KDF_HKDF)
         return psa_hkdf_output_key(operation, key_data, key_bytes);
 #endif
@@ -748,7 +740,6 @@ psa_status_t psa_algorithm_dispatch_key_derivation_output_key(
 psa_status_t psa_algorithm_dispatch_key_derivation_setup(psa_key_derivation_operation_t *operation,
                                                          psa_algorithm_t alg)
 {
-
     if (PSA_ALG_IS_HKDF(alg)) {
     #if IS_USED(MODULE_PSA_KDF_HKDF)
         return psa_hkdf_key_derivation_setup(operation, alg);
@@ -759,8 +750,6 @@ psa_status_t psa_algorithm_dispatch_key_derivation_setup(psa_key_derivation_oper
         return PSA_ERROR_NOT_SUPPORTED;
     }
 }
-
-
 #endif /* MODULE_PSA_KEY_DERIVATION */
 
 #if IS_USED(MODULE_PSA_MAC)

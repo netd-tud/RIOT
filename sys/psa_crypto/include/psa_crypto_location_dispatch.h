@@ -119,7 +119,6 @@ psa_status_t psa_location_dispatch_verify_message(const psa_key_attributes_t *at
                                                  size_t signature_length);
 #endif /* MODULE_PSA_ASYMMETRIC */
 #if IS_USED(MODULE_PSA_KEY_DERIVATION)
-
 /**
  * @brief   Dispatch call of a key derivation abort function to a location-specific backend.
  *          See @ref psa_key_derivation_abort()
@@ -129,9 +128,8 @@ psa_status_t psa_location_dispatch_verify_message(const psa_key_attributes_t *at
  */
 psa_status_t psa_location_dispatch_key_derivation_abort(psa_key_derivation_operation_t *operation);
 
-
 /**
- * @brief   Dispatch call of a key derivation direct input function to a location-specific backend.
+ * @brief   Dispatch call of a key derivation direct input pass function to a location-specific backend.
  *          See @ref psa_key_derivation_input_bytes()
  *
  * @param operation
@@ -149,8 +147,8 @@ psa_status_t psa_location_dispatch_key_derivation_input_bytes(
     psa_algorithm_t alg);
 
 /**
- * @brief   Dispatch call of a key derivation secret input pass function to a location-specific backend.
- *          See @ref psa_key_derivation_input_bytes()
+ * @brief   Dispatch call of a key derivation secret material input function to a location-specific backend.
+ *          See @ref psa_key_derivation_input_key()
  *
  * @param operation
  * @param step
@@ -169,8 +167,8 @@ psa_status_t psa_location_dispatch_key_derivation_input_key(
     psa_algorithm_t alg);
 
 /**
- * @brief   Dispatch call of a key derivation setup function to a location-specific backend.
- *          See @ref psa_key_derivation_setup()
+ * @brief   Dispatch call of a key derivation key agreement function to a location-specific backend.
+ *          See @ref psa_key_derivation_key_agreement()
  *
  * @param operation
  * @param step
@@ -187,8 +185,8 @@ psa_status_t psa_location_dispatch_key_derivation_key_agreement(
     size_t peer_key_length);
 
 /**
- * @brief   Dispatch call of a key derivation setup function to a location-specific backend.
- *          See @ref psa_key_derivation_setup()
+ * @brief   Dispatch call of a key derivation output bytes function to a location-specific backend.
+ *          See @ref psa_key_derivation_output_bytes()
  *
  * @param operation
  * @param output
@@ -203,16 +201,15 @@ psa_status_t psa_location_dispatch_key_derivation_output_bytes(
     psa_algorithm_t alg);
 
 /**
- * @brief   Dispatch call of a key derivation setup function to a location-specific backend.
- *          See @ref psa_key_derivation_setup()
+ * @brief   Dispatch call of a key derivation output key function to a location-specific backend.
+ *          See @ref psa_key_derivation_output_key()
  *
  * @param operation
- * @param output
- * @param output_length
  * @param alg
+ * @param key_data
+ * @param key_bytes
  * @return psa_status_t
  */
-
 psa_status_t psa_location_dispatch_key_derivation_output_key(
     psa_key_derivation_operation_t *operation,
     // const psa_key_attributes_t *attributes,
