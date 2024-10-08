@@ -1,0 +1,40 @@
+From 6441b814c1a62879ae93bb7d43e04a19c05bff5a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Mikolai=20G=C3=BCtschow?= <mikolai.guetschow@tu-dresden.de>
+Date: Fri, 1 Nov 2024 13:45:43 +0100
+Subject: [PATCH 3/3] fixup! cc3xx: Wait for existing DMA interrupts for
+ symmetric ops on CC310
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Change-Id: I80c564b37353e03192174eee03217a0991317d61
+Signed-off-by: Mikolai Gütschow <mikolai.guetschow@tu-dresden.de>
+---
+ .../target/arm/drivers/cc3xx/low_level_driver/src/cc3xx_dma.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/platform/ext/target/arm/drivers/cc3xx/low_level_driver/src/cc3xx_dma.c b/platform/ext/target/arm/drivers/cc3xx/low_level_driver/src/cc3xx_dma.c
+index 229dd3fa..7bbc54c7 100644
+--- a/platform/ext/target/arm/drivers/cc3xx/low_level_driver/src/cc3xx_dma.c
++++ b/platform/ext/target/arm/drivers/cc3xx/low_level_driver/src/cc3xx_dma.c
+@@ -70,7 +70,7 @@ static uintptr_t remap_addr(uintptr_t addr) {
+ 
+ static void wait_for_dma_complete(void) {
+ #if defined(CC3XX_CONFIG_HW_VERSION_CC310)
+-    if (dma_state.block_buf_needs_output)
++    if (dma_state.block_buf_needs_output) {
+         /* Wait for DOUT_TO_MEM_INT */
+         while (!(P_CC3XX->host_rgf.host_rgf_irr & 0x80U)) {
+ #ifdef CC3XX_CONFIG_DMA_WFI_WAIT_ENABLE
+@@ -80,7 +80,7 @@ static void wait_for_dma_complete(void) {
+ 
+         /* Reset DOUT_TO_MEM_INT interrupt */
+         P_CC3XX->host_rgf.host_rgf_icr = 0x80U;
+-    else {
++    } else {
+         /* Wait for MEM_TO_DIN_INT */
+         while (!(P_CC3XX->host_rgf.host_rgf_irr & 0x40U)) {
+ #ifdef CC3XX_CONFIG_DMA_WFI_WAIT_ENABLE
+-- 
+2.39.5
+

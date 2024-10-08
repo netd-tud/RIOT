@@ -1,0 +1,6 @@
+/**
+ * @defgroup pkg_driver_cc3xx ARM CryptoCell 310/312 Driver
+ * @ingroup  pkg
+ * @brief    open-source version of a driver for the ARM CryptoCell 310/312 hardware accelerator
+ * @see      https://github.com/TrustedFirmware-M/trusted-firmware-m/tree/main/platform/ext/target/arm/drivers/cc3xx
+ */

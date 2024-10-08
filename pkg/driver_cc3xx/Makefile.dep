@@ -1,0 +1,9 @@
+FEATURES_REQUIRED += periph_cryptocell_310
+
+USEMODULE += driver_cc3xx
+USEMODULE += driver_cc3xx-common
+
+ifneq (,$(filter driver_cc3xx-test,$(USEMODULE)))
+  USEMODULE += driver_cc3xx-test-ll
+  USEMODULE += driver_cc3xx-testsuite
+endif

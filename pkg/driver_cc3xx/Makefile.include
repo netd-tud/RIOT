@@ -1,0 +1,4 @@
+INCLUDES += -I$(PKGDIRBASE)/driver_cc3xx/platform/ext/target/arm/drivers/cc3xx/low_level_driver/include
+INCLUDES += -I$(PKGDIRBASE)/driver_cc3xx/platform/ext/target/arm/drivers/cc3xx/common
+INCLUDES += -I$(RIOTPKG)/driver_cc3xx/include
+INCLUDES += -I$(RIOTPKG)/driver_cc3xx/tests
