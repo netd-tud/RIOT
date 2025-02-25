@@ -87,13 +87,21 @@ static int _add_text(skald_bthome_ctx_t *ctx, uint8_t obj_id, phydat_t *data, ui
     return skald_bthome_add_measurement(ctx, obj_id, info, strlen(info));
 }
 
+static int _add_balance(skald_bthome_ctx_t *ctx, uint8_t obj_id, phydat_t *data, uint8_t idx)
+{
+    uint16_t balance_be = htobe16(4999);
+    (void)data;
+    (void)idx;
+    return skald_bthome_add_measurement(ctx, obj_id, &balance_be, sizeof(balance_be));
+}
+
 int main(void)
 {
     saul_reg_t *dev = saul_reg;
     unsigned i = 0;
     int res;
 
-    ztimer_sleep(ZTIMER_MSEC, 2000);
+    ztimer_sleep(ZTIMER_MSEC, 10000);
     printf("Skald and the tale of Harald's home\n");
 
 #ifdef ENCRYPTION_KEY
@@ -143,6 +151,17 @@ int main(void)
         if ((res = skald_bthome_saul_add(&_ctx, &_saul_devs[i])) < 0) {
             errno = -res;
             perror("Unable to add text info to BTHome");
+        };
+        i++;
+    }
+    if (i < CONFIG_BTHOME_SAUL_REG_DEVS) {
+        memset(&_saul_devs[i].saul, 0, sizeof(_saul_devs[i].saul));
+        _saul_devs[i].obj_id = BTHOME_ID_RAW;
+        _saul_devs[i].flags = SKALD_BTHOME_SAUL_FLAGS_CUSTOM;
+        _saul_devs[i].add_measurement = _add_balance;
+        if ((res = skald_bthome_saul_add(&_ctx, &_saul_devs[i])) < 0) {
+            errno = -res;
+            perror("Unable to add raw info to BTHome");
         };
         i++;
     }
