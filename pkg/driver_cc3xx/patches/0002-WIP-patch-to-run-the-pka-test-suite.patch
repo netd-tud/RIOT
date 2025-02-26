@@ -1,0 +1,105 @@
+From e2dfb45b12644c0b03921b239603a02006739d1f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Mikolai=20G=C3=BCtschow?= <mikolai.guetschow@tu-dresden.de>
+Date: Fri, 18 Oct 2024 17:21:52 +0200
+Subject: [PATCH 2/3] WIP patch to run the pka test-suite
+
+Change-Id: Id20c84e3b87d346c345e8643f03b66f6e5afe72f
+---
+ .../arm/drivers/cc3xx/tests/src/cc3xx_test_ecc.c     |  6 ------
+ .../arm/drivers/cc3xx/tests/src/cc3xx_test_main.c    | 12 ++++++------
+ .../arm/drivers/cc3xx/tests/src/cc3xx_test_pka.c     |  9 ---------
+ .../arm/drivers/cc3xx/tests/src/cc3xx_test_utils.h   | 11 +++++------
+ 4 files changed, 11 insertions(+), 27 deletions(-)
+
+diff --git a/platform/ext/target/arm/drivers/cc3xx/tests/src/cc3xx_test_ecc.c b/platform/ext/target/arm/drivers/cc3xx/tests/src/cc3xx_test_ecc.c
+index 8f084bda..3e569f30 100644
+--- a/platform/ext/target/arm/drivers/cc3xx/tests/src/cc3xx_test_ecc.c
++++ b/platform/ext/target/arm/drivers/cc3xx/tests/src/cc3xx_test_ecc.c
+@@ -353,11 +353,5 @@ static struct test_t ecc_tests = {
+ 
+ void add_cc3xx_ecc_tests_to_testsuite(struct test_suite_t *p_ts, uint32_t ts_size)
+ {
+-#if defined(CC3XX_CONFIG_ECDSA_SIGN_ENABLE) \
+- || defined(CC3XX_CONFIG_ECDSA_SIGN_ENABLE) \
+- || defined(CC3XX_CONFIG_ECDSA_VERIFY_ENABLE) \
+- || defined(CC3XX_CONFIG_ECDSA_KEYGEN_ENABLE) \
+- || defined(CC3XX_CONFIG_ECDH_ENABLE)
+     cc3xx_add_tests_to_testsuite(&ecc_tests, 1, p_ts, ts_size);
+-#endif
+ }
+diff --git a/platform/ext/target/arm/drivers/cc3xx/tests/src/cc3xx_test_main.c b/platform/ext/target/arm/drivers/cc3xx/tests/src/cc3xx_test_main.c
+index f1d05806..5b470488 100644
+--- a/platform/ext/target/arm/drivers/cc3xx/tests/src/cc3xx_test_main.c
++++ b/platform/ext/target/arm/drivers/cc3xx/tests/src/cc3xx_test_main.c
+@@ -16,12 +16,12 @@
+ 
+ void add_cc3xx_tests_to_testsuite(struct test_suite_t *p_ts, uint32_t ts_size)
+ {
+-#ifdef TEST_CC3XX
++// #ifdef TEST_CC3XX
+     add_cc3xx_hash_tests_to_testsuite(p_ts, ts_size);
+-    add_cc3xx_aes_tests_to_testsuite(p_ts, ts_size);
+-    add_cc3xx_chacha_tests_to_testsuite(p_ts, ts_size);
++    // add_cc3xx_aes_tests_to_testsuite(p_ts, ts_size);
++    // add_cc3xx_chacha_tests_to_testsuite(p_ts, ts_size);
+     add_cc3xx_pka_tests_to_testsuite(p_ts, ts_size);
+-    add_cc3xx_ecc_tests_to_testsuite(p_ts, ts_size);
+-    add_cc3xx_ecdsa_tests_to_testsuite(p_ts, ts_size);
+-#endif /* TEST_CC3XX */
++    // add_cc3xx_ecc_tests_to_testsuite(p_ts, ts_size);
++    // add_cc3xx_ecdsa_tests_to_testsuite(p_ts, ts_size);
++// #endif /* TEST_CC3XX */
+ }
+diff --git a/platform/ext/target/arm/drivers/cc3xx/tests/src/cc3xx_test_pka.c b/platform/ext/target/arm/drivers/cc3xx/tests/src/cc3xx_test_pka.c
+index 32aae2a3..db90a6e9 100644
+--- a/platform/ext/target/arm/drivers/cc3xx/tests/src/cc3xx_test_pka.c
++++ b/platform/ext/target/arm/drivers/cc3xx/tests/src/cc3xx_test_pka.c
+@@ -1225,15 +1225,6 @@ static struct test_t pka_tests[] = {
+ 
+ void add_cc3xx_pka_tests_to_testsuite(struct test_suite_t *p_ts, uint32_t ts_size)
+ {
+-#if defined(CC3XX_CONFIG_CHACHA_POLY1305_ENABLE) \
+- || defined(CC3XX_CONFIG_DRBG_CTR_ENABLE) \
+- || defined(CC3XX_CONFIG_DRBG_HASH_ENABLE) \
+- || defined(CC3XX_CONFIG_ECDSA_SIGN_ENABLE) \
+- || defined(CC3XX_CONFIG_ECDSA_SIGN_ENABLE) \
+- || defined(CC3XX_CONFIG_ECDSA_VERIFY_ENABLE) \
+- || defined(CC3XX_CONFIG_ECDSA_KEYGEN_ENABLE) \
+- || defined(CC3XX_CONFIG_ECDH_ENABLE)
+     enable_cycle_counter();
+     cc3xx_add_tests_to_testsuite(pka_tests, ARRAY_SIZE(pka_tests), p_ts, ts_size);
+-#endif
+ }
+diff --git a/platform/ext/target/arm/drivers/cc3xx/tests/src/cc3xx_test_utils.h b/platform/ext/target/arm/drivers/cc3xx/tests/src/cc3xx_test_utils.h
+index 2f41827e..e8ca524e 100644
+--- a/platform/ext/target/arm/drivers/cc3xx/tests/src/cc3xx_test_utils.h
++++ b/platform/ext/target/arm/drivers/cc3xx/tests/src/cc3xx_test_utils.h
+@@ -39,20 +39,19 @@ static inline uint32_t pmod(int32_t num, int32_t N)
+ 
+ static inline void enable_cycle_counter(void)
+ {
+-    DCB->DEMCR |= DCB_DEMCR_TRCENA_Msk;
+-    /* DWT->LAR = 0xC5ACCE55; */
+-    DWT->CYCCNT = 0;
+-    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
++    SysTick->VAL  = 0;
++    SysTick->LOAD = SysTick_LOAD_RELOAD_Msk;
++    SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_ENABLE_Msk;
+ }
+ 
+ static inline uint32_t get_cycle_count(void)
+ {
+-    return DWT->CYCCNT;
++    return SysTick_LOAD_RELOAD_Msk - SysTick->VAL;
+ }
+ 
+ static inline uint32_t reset_cycle_count(void)
+ {
+-    DWT->CYCCNT = 0;
++    SysTick->CTRL = 0;
+ }
+ 
+ #ifdef __cplusplus
+-- 
+2.39.5
+

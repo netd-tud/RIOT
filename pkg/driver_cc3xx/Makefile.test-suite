@@ -1,0 +1,21 @@
+MODULE = driver_cc3xx-testsuite
+
+INCLUDES += -I$(PKGDIRBASE)/driver_cc3xx/platform/ext/target/arm/drivers/cc3xx/low_level_driver/include
+INCLUDES += -I$(PKGDIRBASE)/driver_cc3xx/platform/ext/target/arm/drivers/cc3xx/tests/include
+INCLUDES += -I$(PKGDIRBASE)/driver_cc3xx/platform/ext/target/arm/drivers/cc3xx/tests/src
+INCLUDES += -I$(PKGDIRBASE)/driver_cc3xx/platform/ext/target/arm/drivers/cc3xx/tests/src/low_level_driver
+INCLUDES += -I$(RIOTPKG)/driver_cc3xx/tests
+
+CFLAGS += -Wno-error=return-type
+CFLAGS += -Wno-error=incompatible-pointer-types
+CFLAGS += -Wno-error=unused-variable
+CFLAGS += -Wno-error=sign-compare
+CFLAGS += -Wno-error=implicit-function-declaration
+CFLAGS += -Wno-error=format=
+CFLAGS += -Wno-error=unused-label
+CFLAGS += -Wno-error=pointer-sign
+CFLAGS += -Wno-error=builtin-declaration-mismatch
+
+CFLAGS += -DUSE_STDIO
+
+include $(RIOTBASE)/Makefile.base
