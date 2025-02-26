@@ -55,6 +55,14 @@ extern "C" {
 /** @} */
 
 /**
+ * @name    Button pin configuration
+ * @{
+ */
+#define BTN0_PIN            GPIO_PIN(0, 3) // D1
+#define BTN0_MODE           GPIO_IN_PU
+/** @} */
+
+/**
  * @name SPI NOR flash hardware configuration
  *
  * A 2MB P25Q16H flash is present on the board.
