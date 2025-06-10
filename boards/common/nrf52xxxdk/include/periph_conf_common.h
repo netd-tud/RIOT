@@ -64,6 +64,12 @@ static const pwm_conf_t pwm_config[] = {
         GPIO_UNDEF,
 #endif
     } },
+    { NRF_PWM1, {
+        GPIO_PIN(0, 31),
+        GPIO_UNDEF,
+        GPIO_UNDEF,
+        GPIO_UNDEF,
+    } },
 };
 #define PWM_NUMOF           ARRAY_SIZE(pwm_config)
 /** @} */

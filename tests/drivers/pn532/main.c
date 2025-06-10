@@ -129,6 +129,18 @@ int main(void)
             }
 
         }
+        else if (card.type == ISO14443A_TYPE2) {
+            for (int i = 0; i < 32; i++) {
+                ret = pn532_mifareulight_read(&pn532, data, &card, 4*i);
+                if (ret == 0) {
+                    printbuff(data, 16);
+                }
+                else {
+                    LOG_ERROR("read\n");
+                    break;
+                }
+            }
+        }
         else {
             LOG_ERROR("unknown card type\n");
         }
