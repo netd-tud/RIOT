@@ -87,6 +87,28 @@ static const i2c_conf_t i2c_config[] = {
 #define I2C_NUMOF           ARRAY_SIZE(i2c_config)
 /** @} */
 
+/**
+ * @name   PWM configuration
+ * @{
+ */
+static const pwm_conf_t pwm_config[] = {
+    /* Beware: Keep pwm_params.h in sync with the definitions here */
+    { NRF_PWM0, {
+        GPIO_UNDEF,
+        GPIO_UNDEF,
+        GPIO_UNDEF,
+        GPIO_UNDEF,
+    } },
+    { NRF_PWM1, {
+        GPIO_PIN(0, 10),
+        GPIO_UNDEF,
+        GPIO_UNDEF,
+        GPIO_UNDEF,
+    } },
+};
+#define PWM_NUMOF           ARRAY_SIZE(pwm_config)
+/** @} */
+
 #ifdef __cplusplus
 }
 #endif

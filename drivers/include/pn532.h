@@ -126,7 +126,8 @@ typedef enum {
 typedef enum {
     ISO14443A_UNKNOWN,
     ISO14443A_MIFARE,
-    ISO14443A_TYPE4
+    ISO14443A_TYPE2,
+    ISO14443A_TYPE4,
 } nfc_iso14443a_type_t;
 
 /**
@@ -331,7 +332,7 @@ int pn532_mifareclassic_write(pn532_t *dev, char *idata, nfc_iso14443a_t *card, 
 /**
  * @brief   Read a block of a Mifare Ultralight card
  *
- * The block size is 32 bytes and it must be authenticated before read.
+ * The block size is 16 bytes.
  *
  * @param[in]  dev          target device
  * @param[out] odata        buffer where to store the data

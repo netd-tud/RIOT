@@ -502,6 +502,10 @@ int pn532_get_passive_iso14443a(pn532_t *dev, nfc_iso14443a_t *out,
             if (buff[13] == ret - 13) {
                 out->type = ISO14443A_TYPE4;
             }
+            else {
+                // todo: always true?
+                out->type = ISO14443A_TYPE2;
+            }
         }
         ret = 0;
     }
@@ -619,7 +623,7 @@ int pn532_mifareclassic_read(pn532_t *dev, char *odata, nfc_iso14443a_t *card,
 int pn532_mifareulight_read(pn532_t *dev, char *odata, nfc_iso14443a_t *card,
                             unsigned page)
 {
-    return pn532_mifare_read(dev, odata, card, page, 32);
+    return pn532_mifare_read(dev, odata, card, page, 16);
 }
 
 static int send_rcv_apdu(pn532_t *dev, uint8_t *buff, unsigned slen, unsigned rlen)
