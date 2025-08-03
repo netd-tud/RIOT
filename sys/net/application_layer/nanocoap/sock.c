@@ -811,10 +811,38 @@ static int _fetch_block(nanocoap_sock_t *sock, uint8_t *buf, size_t len,
     token_len = sizeof(ctx->token);
 #endif
 
+    bool proxy = false;
+    const char *scheme, *host;
+    size_t scheme_len, host_len;
+    const char *p = strstr(path, "://");
+    if (p) {
+        proxy = true;
+        scheme = path;
+        scheme_len = p - path;
+        path = p+3;
+
+        // todo: host may include port
+        p = strchr(path, '/');
+        if (!p) {
+            return -1;
+        }
+        host = path;
+        host_len = p - path;
+        path = p+1;
+    }
+
+
     buf += coap_build_hdr(pkt.hdr, COAP_TYPE_CON, token, token_len, COAP_METHOD_GET,
                           nanocoap_sock_next_msg_id(sock));
+    if (proxy) {
+        buf += coap_opt_put_string_with_len(buf, lastonum, COAP_OPT_URI_HOST, host, host_len, '\0');
+        lastonum = COAP_OPT_URI_HOST;
+    }
     buf += coap_opt_put_uri_pathquery(buf, &lastonum, path);
     buf += coap_opt_put_uint(buf, lastonum, COAP_OPT_BLOCK2, (ctx->blknum << 4) | blksize);
+    if (proxy) {
+        buf += coap_opt_put_string_with_len(buf, COAP_OPT_BLOCK2, COAP_OPT_PROXY_SCHEME, scheme, scheme_len, '\0');
+    }
 
     (void)len;
     assert((uintptr_t)buf - (uintptr_t)pkt.hdr < len);
