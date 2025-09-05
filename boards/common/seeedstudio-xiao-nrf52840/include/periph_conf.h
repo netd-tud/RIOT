@@ -95,6 +95,28 @@ static const i2c_conf_t i2c_config[] = {
 #define I2C_NUMOF           ARRAY_SIZE(i2c_config)  /**< Number of (preconfigured) I2C Buses */
 /** @} */
 
+// todo: valid and configured for xiao shield base
+/**
+ * @name   PWM configuration
+ * @{
+ */
+static const pwm_conf_t pwm_config[] = {
+    { NRF_PWM0, {
+        GPIO_UNDEF,
+        GPIO_UNDEF,
+        GPIO_UNDEF,
+        GPIO_UNDEF,
+    } },
+    { NRF_PWM1, {
+        GPIO_PIN(0, 29),
+        GPIO_UNDEF,
+        GPIO_UNDEF,
+        GPIO_UNDEF,
+    } },
+};
+#define PWM_NUMOF           ARRAY_SIZE(pwm_config)
+/** @} */
+
 #ifdef __cplusplus
 }
 #endif
