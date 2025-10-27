@@ -27,11 +27,84 @@
 extern "C" {
 #endif
 
+#include "kernel_defines.h"
+#include "psa/algorithm.h"
+
+#if IS_USED(MODULE_PSA_GENERIC_HMAC_MD5) || \
+    IS_USED(MODULE_PSA_GENERIC_MAC_HMAC_SHA_1) || \
+    IS_USED(MODULE_PSA_GENERIC_MAC_HMAC_SHA_224) || \
+    IS_USED(MODULE_PSA_GENERIC_MAC_HMAC_SHA_256) || \
+    IS_USED(MODULE_PSA_GENERIC_MAC_HMAC_SHA_384) || \
+    IS_USED(MODULE_PSA_GENERIC_MAC_HMAC_SHA_512) || \
+    IS_USED(MODULE_PSA_GENERIC_MAC_HMAC_SHA_512_224) || \
+    IS_USED(MODULE_PSA_GENERIC_MAC_HMAC_SHA_512_256) || \
+    IS_USED(MODULE_PSA_GENERIC_MAC_HMAC_SHA3_256) || \
+    IS_USED(MODULE_PSA_GENERIC_MAC_HMAC_SHA3_384) || \
+    IS_USED(MODULE_PSA_GENERIC_MAC_HMAC_SHA3_512)
+#include "psa/mac/generic_hmac_ctx.h"
+#endif
+
+#if IS_USED(MODULE_PERIPH_MAC_HMAC_MD5) || \
+    IS_USED(MODULE_PERIPH_MAC_HMAC_SHA_1) || \
+    IS_USED(MODULE_PERIPH_MAC_HMAC_SHA_224) || \
+    IS_USED(MODULE_PERIPH_MAC_HMAC_SHA_256) || \
+    IS_USED(MODULE_PERIPH_MAC_HMAC_SHA_384) || \
+    IS_USED(MODULE_PERIPH_MAC_HMAC_SHA_512) || \
+    IS_USED(MODULE_PERIPH_MAC_HMAC_SHA_512_224) || \
+    IS_USED(MODULE_PERIPH_MAC_HMAC_SHA_512_256) || \
+    IS_USED(MODULE_PERIPH_MAC_HMAC_SHA3_256) || \
+    IS_USED(MODULE_PERIPH_MAC_HMAC_SHA3_384) || \
+    IS_USED(MODULE_PERIPH_MAC_HMAC_SHA3_512)
+#include "psa_periph_mac_hmac_ctx.h"
+#endif
+
+/**
+ * @brief   Structure containing the mac contexts needed by the application.
+ */
+typedef union {
+#if IS_USED(MODULE_PSA_MAC_HMAC_MD5) || defined(DOXYGEN)
+    psa_mac_hmac_md5_ctx_t md5;                 /**< MD5 context */
+#endif
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA_1) || defined(DOXYGEN)
+    psa_mac_hmac_sha1_ctx_t sha1;               /**< SHA-1 context */
+#endif
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA_224) || defined(DOXYGEN)
+    psa_mac_hmac_sha224_ctx_t sha224;           /**< SHA-224 context */
+#endif
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA_256) || defined(DOXYGEN)
+    psa_mac_hmac_sha256_ctx_t sha256;           /**< SHA-256 context */
+#endif
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA_384) || defined(DOXYGEN)
+    psa_mac_hmac_sha384_ctx_t sha384;           /**< SHA-384 context */
+#endif
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA_512) || defined(DOXYGEN)
+    psa_mac_hmac_sha512_ctx_t sha512;           /**< SHA-512 context */
+#endif
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA3_256) || defined(DOXYGEN)
+    psa_mac_hmac_sha3_256_ctx_t sha3_256;       /**< SHA-3-256 context */
+#endif
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA3_384) || defined(DOXYGEN)
+    psa_mac_hmac_sha3_384_ctx_t sha3_384;       /**< SHA-3-384 context */
+#endif
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA3_512) || defined(DOXYGEN)
+    psa_mac_hmac_sha3_512_ctx_t sha3_512;       /**< SHA-3-512 context */
+#endif
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA_512_224) || defined(DOXYGEN)
+    psa_mac_hmac_sha512_224_ctx_t sha512_224;   /**< SHA-512/224 context */
+#endif
+#if IS_USED(MODULE_PSA_MAC_HMAC_SHA_512_256) || defined(DOXYGEN)
+    psa_mac_hmac_sha512_256_ctx_t sha512_256;   /**< SHA-512/256 context */
+#endif
+} psa_mac_context_t;
+
 /**
  * @brief   Structure containing a MAC operation context
  */
 struct psa_mac_operation_s {
     psa_algorithm_t alg;    /**< MAC algorithm used for multi-part MAC operations */
+#if IS_USED(MODULE_PSA_MAC) || defined(DOXYGEN)
+    psa_mac_context_t ctx;  /**< MAC operation context */
+#endif
 };
 
 /**

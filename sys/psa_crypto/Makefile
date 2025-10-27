@@ -4,6 +4,10 @@ CFLAGS += -Wno-cast-align
 # include the PSA headers
 INCLUDES += -I$(RIOTBASE)/sys/psa_crypto/include
 
+ifneq (,$(filter psa_generic_hmac_%,$(USEMODULE)))
+  DIRS += psa_generic_hmac
+endif
+
 ifneq (,$(filter psa_key_slot_mgmt,$(USEMODULE)))
   DIRS += psa_key_slot_mgmt
 endif

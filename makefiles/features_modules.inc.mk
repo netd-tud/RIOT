@@ -38,6 +38,7 @@ PERIPH_IGNORE_MODULES := \
   periph_hash_sha_512 \
   periph_hash_sha_512_224 \
   periph_hash_sha_512_256 \
+  periph_hmac_md5 \
   periph_hmac_sha_256 \
   periph_i2c_hw \
   periph_i2c_sw \
