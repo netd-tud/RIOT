@@ -291,6 +291,11 @@ names in uppercase and add the prefix `CONFIG_MODULE_` to all of them.
 - psa_aead_aes_256_ccm_backend_cifra
 - psa_aead_aes_256_ccm_custom_backend
 
+#### Chacha20-Poly1305
+- psa_aead_chacha20_poly1305
+- psa_aead_chacha20_poly1305_backend_cifra
+- psa_aead_chacha20_poly1305_custom_backend
+
 ### Ciphers
 - Base: psa_cipher
 

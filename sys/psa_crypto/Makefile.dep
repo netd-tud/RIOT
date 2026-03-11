@@ -217,6 +217,18 @@ ifneq (,$(filter psa_aead_aes_%_ccm_backend_cifra,$(USEMODULE)))
   USEMODULE += psa_cifra_aes_ccm
 endif
 
+## ChaCha20-Poly1305
+ifneq (,$(filter psa_aead_chacha20_poly1305,$(USEMODULE)))
+  ifeq (,$(filter psa_aead_chacha20_poly1305_custom_backend,$(USEMODULE)))
+    USEMODULE += psa_aead_chacha20_poly1305_backend_cifra
+  endif
+endif
+
+ifneq (,$(filter psa_aead_chacha20_poly1305_backend_cifra,$(USEMODULE)))
+  USEPKG += cifra
+  USEMODULE += psa_cifra
+  USEMODULE += psa_cifra_chacha20_poly1305
+endif
 
 ## ChaCha20
 ifneq (,$(filter psa_cipher_chacha20,$(USEMODULE)))
