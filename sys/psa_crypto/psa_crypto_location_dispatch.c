@@ -373,6 +373,168 @@ psa_status_t psa_location_dispatch_aead_decrypt(const psa_key_attributes_t *attr
                                                 ciphertext, ciphertext_length, plaintext,
                                                 plaintext_size, plaintext_length);
 }
+
+psa_status_t psa_location_dispatch_aead_encrypt_setup(psa_aead_operation_t *operation,
+                                                      const psa_key_attributes_t *attributes,
+                                                      const psa_key_slot_t *slot,
+                                                      psa_algorithm_t alg)
+{
+/* TODO: implement MODULE_PSA_SECURE_ELEMENT support */
+#  if IS_USED(MODULE_PSA_SECURE_ELEMENT)
+    (void)operation;
+    (void)attributes;
+    (void)slot;
+    (void)alg;
+    return PSA_ERROR_NOT_SUPPORTED;
+#  endif /* MODULE_PSA_SECURE_ELEMENT */
+
+    return psa_algorithm_dispatch_aead_encrypt_setup(operation, attributes, slot, alg);
+}
+
+psa_status_t psa_location_dispatch_aead_decrypt_setup(psa_aead_operation_t *operation,
+                                                      const psa_key_attributes_t *attributes,
+                                                      const psa_key_slot_t *slot,
+                                                      psa_algorithm_t alg)
+{
+/* TODO: implement MODULE_PSA_SECURE_ELEMENT support */
+#  if IS_USED(MODULE_PSA_SECURE_ELEMENT)
+    (void)operation;
+    (void)attributes;
+    (void)slot;
+    (void)alg;
+    return PSA_ERROR_NOT_SUPPORTED;
+#  endif /* MODULE_PSA_SECURE_ELEMENT */
+
+    return psa_algorithm_dispatch_aead_decrypt_setup(operation, attributes, slot, alg);
+}
+
+psa_status_t psa_location_dispatch_aead_set_lengths(psa_aead_operation_t *operation, size_t ad_length, size_t plaintext_length)
+{
+/* TODO: implement MODULE_PSA_SECURE_ELEMENT support */
+#  if IS_USED(MODULE_PSA_SECURE_ELEMENT)
+    (void)operation;
+    (void)ad_length;
+    (void)plaintext_length;
+    return PSA_ERROR_NOT_SUPPORTED;
+#  endif /* MODULE_PSA_SECURE_ELEMENT */
+
+    return psa_algorithm_dispatch_aead_set_lengths(operation, ad_length, plaintext_length);
+}
+
+psa_status_t psa_location_dispatch_aead_generate_nonce(psa_aead_operation_t *operation,
+                                                       uint8_t *nonce,
+                                                       size_t nonce_size,
+                                                       size_t *nonce_length)
+{
+    /* TODO: implement MODULE_PSA_SECURE_ELEMENT support */
+#  if IS_USED(MODULE_PSA_SECURE_ELEMENT)
+    (void)operation;
+    (void)nonce;
+    (void)nonce_size;
+    (void)nonce_length;
+    return PSA_ERROR_NOT_SUPPORTED;
+#  endif /* MODULE_PSA_SECURE_ELEMENT */
+
+    return psa_algorithm_dispatch_aead_generate_nonce(operation, nonce, nonce_size, nonce_length);
+}
+
+psa_status_t psa_location_dispatch_aead_set_nonce(psa_aead_operation_t *operation,
+                                                  const uint8_t *nonce,
+                                                  size_t nonce_length)
+{
+/* TODO: implement MODULE_PSA_SECURE_ELEMENT support */
+#  if IS_USED(MODULE_PSA_SECURE_ELEMENT)
+    (void)operation;
+    (void)nonce;
+    (void)nonce_length;
+    return PSA_ERROR_NOT_SUPPORTED;
+#  endif /* MODULE_PSA_SECURE_ELEMENT */
+
+    return psa_algorithm_dispatch_aead_set_nonce(operation, nonce, nonce_length);
+}
+
+psa_status_t psa_location_dispatch_aead_update_ad(psa_aead_operation_t *operation,
+                                                  const uint8_t *input,
+                                                  size_t input_length)
+{
+/* TODO: implement MODULE_PSA_SECURE_ELEMENT support */
+#  if IS_USED(MODULE_PSA_SECURE_ELEMENT)
+    (void)operation;
+    (void)input;
+    (void)input_length;
+    return PSA_ERROR_NOT_SUPPORTED;
+#  endif /* MODULE_PSA_SECURE_ELEMENT */
+
+    return psa_algorithm_dispatch_aead_update_ad(operation, input, input_length);
+}
+
+psa_status_t psa_location_dispatch_aead_update(psa_aead_operation_t *operation,
+                                               const uint8_t *input,
+                                               size_t input_length,
+                                               uint8_t *output,
+                                               size_t output_size,
+                                               size_t *output_length)
+{
+/* TODO: implement MODULE_PSA_SECURE_ELEMENT support */
+#  if IS_USED(MODULE_PSA_SECURE_ELEMENT)
+    (void)operation;
+    (void)input;
+    (void)input_length;
+    (void)output;
+    (void)output_size;
+    (void)output_length;
+    return PSA_ERROR_NOT_SUPPORTED;
+#  endif /* MODULE_PSA_SECURE_ELEMENT */
+
+    return psa_algorithm_dispatch_aead_update(operation, input, input_length, output,
+                                              output_size, output_length);
+}
+
+psa_status_t psa_location_dispatch_aead_finish(psa_aead_operation_t *operation,
+                                               uint8_t *ciphertext,
+                                               size_t ciphertext_size,
+                                               size_t *ciphertext_length,
+                                               uint8_t *tag,
+                                               size_t tag_size,
+                                               size_t *tag_length)
+{
+/* TODO: implement MODULE_PSA_SECURE_ELEMENT support */
+#  if IS_USED(MODULE_PSA_SECURE_ELEMENT)
+    (void)operation;
+    (void)ciphertext;
+    (void)ciphertext_size;
+    (void)ciphertext_length;
+    (void)tag;
+    (void)tag_size;
+    (void)tag_length;
+    return PSA_ERROR_NOT_SUPPORTED;
+#  endif /* MODULE_PSA_SECURE_ELEMENT */
+
+    return psa_algorithm_dispatch_aead_finish(operation, ciphertext, ciphertext_size,
+                                              ciphertext_length, tag, tag_size, tag_length);
+}
+
+psa_status_t psa_location_dispatch_aead_verify(psa_aead_operation_t *operation,
+                                               uint8_t *plaintext,
+                                               size_t plaintext_size,
+                                               size_t *plaintext_length,
+                                               const uint8_t *tag,
+                                               size_t tag_length)
+{
+/* TODO: implement MODULE_PSA_SECURE_ELEMENT support */
+#  if IS_USED(MODULE_PSA_SECURE_ELEMENT)
+    (void)operation;
+    (void)plaintext;
+    (void)plaintext_size;
+    (void)plaintext_length;
+    (void)tag;
+    (void)tag_length;
+    return PSA_ERROR_NOT_SUPPORTED;
+#  endif /* MODULE_PSA_SECURE_ELEMENT */
+
+    return psa_algorithm_dispatch_aead_verify(operation, plaintext, plaintext_size,
+                                              plaintext_length, tag, tag_length);
+}
 #endif /* MODULE_PSA_AEAD */
 
 #if IS_USED(MODULE_PSA_ASYMMETRIC)
