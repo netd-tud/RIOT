@@ -26,6 +26,9 @@ extern "C" {
 #endif
 
 #include "psa_crypto_operation_encoder.h"
+#if IS_USED(MODULE_PSA_AEAD_AES_128_CCM_BACKEND_PERIPH) || defined(DOXYGEN)
+#  include "crys_aesccm.h"
+#endif
 
 /* 
  * These states along with some information about the direction
@@ -63,8 +66,7 @@ struct psa_aead_operation_s {
     /** Union containing AEAD cipher contexts for the executing backend */
     union aead_context {
 #if IS_USED(MODULE_PSA_AEAD_AES_128_CCM_BACKEND_PERIPH) || defined(DOXYGEN)
-        //#include "crys_aesccm.h"
-        //CRYS_AESCCM_UserContext_t crys_aesccm; /**< Cryptocell AES-CCM context*/
+        CRYS_AESCCM_UserContext_t crys_aesccm; /**< Cryptocell AES-CCM context*/
 #endif
     } backend_ctx;
 };

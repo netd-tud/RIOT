@@ -18,6 +18,7 @@
  * @}
  */
 
+#include "psa/error.h"
 #include <stdio.h>
 #include "kernel_defines.h"
 #include "psa/crypto.h"
@@ -900,9 +901,15 @@ psa_status_t psa_algorithm_dispatch_aead_encrypt_setup(psa_aead_operation_t *ope
 
     psa_get_key_data_from_key_slot(slot, &key_data, &key_bytes);
 
+    if (operation->op == PSA_INVALID_OPERATION) {
+        return PSA_ERROR_INVALID_ARGUMENT;
+    }
+
+    uint8_t tag_len = PSA_AEAD_TAG_LENGTH(attributes->type, attributes->bits, alg);
+
     switch (operation->op) {
 #  if IS_USED(MODULE_PSA_AEAD_AES_128_CCM_BACKEND_PERIPH)
-    // todo
+    return psa_aead_aes_128_ccm_setup(&operation->backend_ctx.crys_aesccm, key_data, *key_bytes, tag_len);
 #  endif
     default:
         (void)operation;
@@ -925,9 +932,15 @@ psa_status_t psa_algorithm_dispatch_aead_decrypt_setup(psa_aead_operation_t *ope
 
     psa_get_key_data_from_key_slot(slot, &key_data, &key_bytes);
 
+    if (operation->op == PSA_INVALID_OPERATION) {
+        return PSA_ERROR_INVALID_ARGUMENT;
+    }
+
+    uint8_t tag_len = PSA_AEAD_TAG_LENGTH(attributes->type, attributes->bits, alg);
+
     switch (operation->op) {
 #  if IS_USED(MODULE_PSA_AEAD_AES_128_CCM_BACKEND_PERIPH)
-    // todo
+    return psa_aead_aes_128_ccm_setup(&operation->backend_ctx.crys_aesccm, key_data, *key_bytes, tag_len);
 #  endif
     default:
         (void)operation;
@@ -945,6 +958,7 @@ psa_status_t psa_algorithm_dispatch_aead_set_lengths(psa_aead_operation_t *opera
     switch (operation->op) {
 #  if IS_USED(MODULE_PSA_AEAD_AES_128_CCM_BACKEND_PERIPH)
     // todo
+    return PSA_SUCCESS;
 #  endif
     default:
         (void)operation;
@@ -978,7 +992,7 @@ psa_status_t psa_algorithm_dispatch_aead_set_nonce(psa_aead_operation_t *operati
 {
     switch (operation->op) {
 #  if IS_USED(MODULE_PSA_AEAD_AES_128_CCM_BACKEND_PERIPH)
-    // todo
+    return psa_aead_aes_128_ccm_set_nonce(operation, nonce, nonce_length);
 #  endif
     default:
         (void)operation;
