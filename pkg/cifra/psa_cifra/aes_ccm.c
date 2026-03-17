@@ -83,6 +83,7 @@ psa_status_t psa_aead_decrypt_aes_ccm(const psa_key_attributes_t *attributes,
     return PSA_SUCCESS;
 }
 
+#if IS_USED(MODULE_PSA_AEAD_AES_128_CCM_BACKEND_CIFRA)
 psa_status_t psa_aead_aes_128_ccm_encrypt(const psa_key_attributes_t *attributes,
                                           uint8_t *key_buffer, size_t key_buffer_length,
                                           uint8_t tag_length, const uint8_t *nonce,
@@ -110,6 +111,9 @@ psa_status_t psa_aead_aes_128_ccm_decrypt(const psa_key_attributes_t *attributes
                                     additional_data_length, ciphertext, ciphertext_length,
                                     plaintext, plaintext_size, plaintext_length);
 }
+#endif
+
+#if IS_USED(MODULE_PSA_AEAD_AES_192_CCM_BACKEND_CIFRA)
 psa_status_t psa_aead_aes_192_ccm_encrypt(const psa_key_attributes_t *attributes,
                                           uint8_t *key_buffer, size_t key_buffer_length,
                                           uint8_t tag_length, const uint8_t *nonce,
@@ -123,6 +127,7 @@ psa_status_t psa_aead_aes_192_ccm_encrypt(const psa_key_attributes_t *attributes
                                     additional_data_length, plaintext, plaintext_length,
                                     ciphertext, ciphertext_size, ciphertext_length);
 }
+
 psa_status_t psa_aead_aes_192_ccm_decrypt(const psa_key_attributes_t *attributes,
                                           uint8_t *key_buffer, size_t key_buffer_length,
                                           uint8_t tag_length, const uint8_t *nonce,
@@ -136,6 +141,9 @@ psa_status_t psa_aead_aes_192_ccm_decrypt(const psa_key_attributes_t *attributes
                                     additional_data_length, ciphertext, ciphertext_length,
                                     plaintext, plaintext_size, plaintext_length);
 }
+#endif
+
+#if IS_USED(MODULE_PSA_AEAD_AES_256_CCM_BACKEND_CIFRA)
 psa_status_t psa_aead_aes_256_ccm_encrypt(const psa_key_attributes_t *attributes,
                                           uint8_t *key_buffer, size_t key_buffer_length,
                                           uint8_t tag_length, const uint8_t *nonce,
@@ -162,3 +170,4 @@ psa_status_t psa_aead_aes_256_ccm_decrypt(const psa_key_attributes_t *attributes
                                     additional_data_length, ciphertext, ciphertext_length,
                                     plaintext, plaintext_size, plaintext_length);
 }
+#endif

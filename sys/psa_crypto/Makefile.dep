@@ -175,11 +175,18 @@ ifneq (,$(filter psa_aead_aes_128_ccm_backend_tinycrypt,$(USEMODULE)))
   USEMODULE += psa_tinycrypt
   USEMODULE += psa_tinycrypt_aes_ccm
 endif
+ifneq (,$(filter psa_aead_aes_128_ccm_backend_riot,$(USEMODULE)))
+  USEMODULE += crypto
+  USEMODULE += crypto_aes_128
+  USEMODULE += cipher_modes
+  USEMODULE += psa_riot_aead
+  USEMODULE += psa_riot_aead_aes_ccm
+endif
 
 ## AES-192-CCM
 ifneq (,$(filter psa_aead_aes_192_ccm,$(USEMODULE)))
   ifeq (,$(filter psa_aead_aes_192_ccm_custom_backend,$(USEMODULE)))
-    FEATURES_OPTIONAL += periph_aead_aes_192_ccm
+    #FEATURES_OPTIONAL += periph_aead_aes_192_ccm
     include $(RIOTMAKE)/features_check.inc.mk
     # HACK: Due to kconfig migration, may cause problems
     ifneq (,$(filter periph_aead_aes_192_ccm,$(FEATURES_USED)))
@@ -192,11 +199,18 @@ endif
 ifneq (,$(filter psa_aead_aes_192_ccm_backend_periph,$(USEMODULE)))
   FEATURES_REQUIRED += periph_aead_aes_192_ccm
 endif
+ifneq (,$(filter psa_aead_aes_192_ccm_backend_riot,$(USEMODULE)))
+  USEMODULE += crypto
+  USEMODULE += crypto_aes_192
+  USEMODULE += cipher_modes
+  USEMODULE += psa_riot_aead
+  USEMODULE += psa_riot_aead_aes_ccm
+endif
 
 ## AES-256-CCM
 ifneq (,$(filter psa_aead_aes_256_ccm,$(USEMODULE)))
   ifeq (,$(filter psa_aead_aes_256_ccm_custom_backend,$(USEMODULE)))
-    FEATURES_OPTIONAL += periph_aead_aes_256_ccm
+    #FEATURES_OPTIONAL += periph_aead_aes_256_ccm
     include $(RIOTMAKE)/features_check.inc.mk
     # HACK: Due to kconfig migration, may cause problems
     ifneq (,$(filter periph_aead_aes_256_ccm,$(FEATURES_USED)))
@@ -208,6 +222,13 @@ ifneq (,$(filter psa_aead_aes_256_ccm,$(USEMODULE)))
 endif
 ifneq (,$(filter psa_aead_aes_256_ccm_backend_periph,$(USEMODULE)))
   FEATURES_REQUIRED += periph_aead_aes_256_ccm
+endif
+ifneq (,$(filter psa_aead_aes_256_ccm_backend_riot,$(USEMODULE)))
+  USEMODULE += crypto
+  USEMODULE += crypto_aes_256
+  USEMODULE += cipher_modes
+  USEMODULE += psa_riot_aead
+  USEMODULE += psa_riot_aead_aes_ccm
 endif
 
 ## Cifra supports all of them
