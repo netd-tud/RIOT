@@ -21,7 +21,9 @@
  * @}
  */
 
+#include "net/coap.h"
 #include <errno.h>
+#include <stdint.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -792,14 +794,23 @@ static int _block_cb(void *arg, coap_pkt_t *pkt)
     return ctx->callback(ctx->arg, block2.offset, pkt->payload, pkt->payload_len, block2.more);
 }
 
-static int _fetch_block(nanocoap_sock_t *sock, uint8_t *buf, size_t len,
-                        const char *path, coap_blksize_t blksize,
+static int _fetch_block(nanocoap_sock_t *sock,
+                        const char *path, unsigned int code,
+                        const void *request, size_t len,
+                        uint32_t content_format,
+                        coap_blksize_t blksize,
                         _block_ctx_t *ctx)
 {
-    coap_pkt_t pkt = {
-        .hdr = (void *)buf,
+    uint8_t *pktpos = sock->hdr_buf;
+
+    iolist_t payload = {
+        .iol_base = (void *)request,
+        .iol_len  = len,
     };
-    uint16_t lastonum = 0;
+
+    coap_pkt_t pkt = {
+        .hdr = (void *)pktpos,
+    };
 
     void *token = NULL;
     size_t token_len = 0;
@@ -831,23 +842,28 @@ static int _fetch_block(nanocoap_sock_t *sock, uint8_t *buf, size_t len,
         path = p+1;
     }
 
-
-    buf += coap_build_hdr(pkt.hdr, COAP_TYPE_CON, token, token_len, COAP_METHOD_GET,
+    uint16_t lastonum = 0;
+    pktpos += coap_build_hdr(pkt.hdr, COAP_TYPE_CON, token, token_len, code,
                           nanocoap_sock_next_msg_id(sock));
     if (proxy) {
-        buf += coap_opt_put_string_with_len(buf, lastonum, COAP_OPT_URI_HOST, host, host_len, '\0');
+        pktpos += coap_opt_put_string_with_len(pktpos, lastonum, COAP_OPT_URI_HOST, host, host_len, '\0');
         lastonum = COAP_OPT_URI_HOST;
     }
-    buf += coap_opt_put_uri_pathquery(buf, &lastonum, path);
-    buf += coap_opt_put_uint(buf, lastonum, COAP_OPT_BLOCK2, (ctx->blknum << 4) | blksize);
+    pktpos += coap_opt_put_uri_pathquery(pktpos, &lastonum, path);
+    pktpos += coap_opt_put_uint(pktpos, lastonum, COAP_OPT_CONTENT_FORMAT, content_format);
+    pktpos += coap_opt_put_uint(pktpos, COAP_OPT_CONTENT_FORMAT, COAP_OPT_BLOCK2, (ctx->blknum << 4) | blksize);
     if (proxy) {
-        buf += coap_opt_put_string_with_len(buf, COAP_OPT_BLOCK2, COAP_OPT_PROXY_SCHEME, scheme, scheme_len, '\0');
+        pktpos += coap_opt_put_string_with_len(pktpos, COAP_OPT_BLOCK2, COAP_OPT_PROXY_SCHEME, scheme, scheme_len, '\0');
     }
 
-    (void)len;
-    assert((uintptr_t)buf - (uintptr_t)pkt.hdr < len);
+    if (len) {
+        /* set payload marker */
+        *pktpos++ = COAP_PAYLOAD_MARKER;
+        pkt.snips = &payload;
+    }
+    assert(pktpos < (uint8_t *)sock->hdr_buf + sizeof(sock->hdr_buf));
 
-    pkt.payload = buf;
+    pkt.payload = pktpos;
     pkt.payload_len = 0;
 
     return nanocoap_sock_request_cb(sock, &pkt, _block_cb, ctx);
@@ -918,7 +934,7 @@ int nanocoap_sock_get_blockwise(nanocoap_sock_t *sock, const char *path,
     while (ctx.more) {
         DEBUG("nanocoap: fetching block %"PRIu32"\n", ctx.blknum);
 
-        int res = _fetch_block(sock, sock->hdr_buf, sizeof(sock->hdr_buf), path, blksize, &ctx);
+        int res = _fetch_block(sock, path, COAP_METHOD_GET, NULL, 0, COAP_FORMAT_NONE, blksize, &ctx);
         if (res == -EAGAIN) {
             if (--retries) {
                 continue;
@@ -932,6 +948,48 @@ int nanocoap_sock_get_blockwise(nanocoap_sock_t *sock, const char *path,
 
         ctx.blknum += 1;
         retries = CONFIG_COAP_MAX_RETRANSMIT;
+    }
+
+    return 0;
+}
+
+int nanocoap_sock_post_blockwise_response(nanocoap_sock_t *sock, const char *path,
+                                            const void *request, size_t len,
+                                            uint32_t content_format,
+                                            coap_blksize_t blksize,
+                                            coap_blockwise_cb_t callback, void *arg)
+{
+    _block_ctx_t ctx = {
+        .callback = callback,
+        .arg = arg,
+        .more = true,
+    };
+
+#if CONFIG_NANOCOAP_SOCK_BLOCK_TOKEN
+    random_bytes(ctx.token, sizeof(ctx.token));
+#endif
+
+    uint8_t retries = CONFIG_COAP_MAX_RETRANSMIT;
+    while (ctx.more) {
+        DEBUG("nanocoap: fetching block %"PRIu32"\n", ctx.blknum);
+
+        int res = _fetch_block(sock, path, COAP_METHOD_POST, request, len, content_format, blksize, &ctx);
+        if (res == -EAGAIN) {
+            if (--retries) {
+                continue;
+            }
+            res = -EBADMSG;
+        }
+        if (res < 0) {
+            DEBUG("nanocoap: error fetching block %"PRIu32": %d\n", ctx.blknum, res);
+            return res;
+        }
+
+        ctx.blknum += 1;
+        retries = CONFIG_COAP_MAX_RETRANSMIT;
+        /* only send in first iteration */
+        request = NULL;
+        len = 0;
     }
 
     return 0;
@@ -1025,7 +1083,7 @@ int nanocoap_sock_get_slice(nanocoap_sock_t *sock, const char *path,
     while (dst_ctx.len) {
         DEBUG("nanocoap: fetching block %"PRIu32"\n", ctx.blknum);
 
-        int res = _fetch_block(sock, sock->hdr_buf, sizeof(sock->hdr_buf), path, blksize, &ctx);
+        int res = _fetch_block(sock, path, COAP_METHOD_GET, NULL, 0, COAP_FORMAT_NONE, blksize, &ctx);
         if (res == -EAGAIN) {
             if (--retries) {
                 continue;
