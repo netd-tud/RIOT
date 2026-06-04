@@ -851,6 +851,12 @@ int nanocoap_sock_get_blockwise(nanocoap_sock_t *sock, const char *path,
                                 coap_blksize_t blksize,
                                 coap_blockwise_cb_t callback, void *arg);
 
+int nanocoap_sock_post_blockwise_response(nanocoap_sock_t *sock, const char *path,
+                                            const void *request, size_t len,
+                                            uint32_t content_format,
+                                            coap_blksize_t blksize,
+                                            coap_blockwise_cb_t callback, void *arg);
+
 /**
  * @brief    Performs a blockwise coap get request to the specified url, store
  *           the response in a buffer.
