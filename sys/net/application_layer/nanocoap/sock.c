@@ -23,6 +23,7 @@
 
 #include "net/coap.h"
 #include <errno.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
@@ -801,17 +802,6 @@ static int _fetch_block(nanocoap_sock_t *sock,
                         coap_blksize_t blksize,
                         _block_ctx_t *ctx)
 {
-    uint8_t *pktpos = sock->hdr_buf;
-
-    iolist_t payload = {
-        .iol_base = (void *)request,
-        .iol_len  = len,
-    };
-
-    coap_pkt_t pkt = {
-        .hdr = (void *)pktpos,
-    };
-
     void *token = NULL;
     size_t token_len = 0;
 
@@ -842,31 +832,66 @@ static int _fetch_block(nanocoap_sock_t *sock,
         path = p+1;
     }
 
-    uint16_t lastonum = 0;
-    pktpos += coap_build_hdr(pkt.hdr, COAP_TYPE_CON, token, token_len, code,
-                          nanocoap_sock_next_msg_id(sock));
-    if (proxy) {
-        pktpos += coap_opt_put_string_with_len(pktpos, lastonum, COAP_OPT_URI_HOST, host, host_len, '\0');
-        lastonum = COAP_OPT_URI_HOST;
-    }
-    pktpos += coap_opt_put_uri_pathquery(pktpos, &lastonum, path);
-    pktpos += coap_opt_put_uint(pktpos, lastonum, COAP_OPT_CONTENT_FORMAT, content_format);
-    pktpos += coap_opt_put_uint(pktpos, COAP_OPT_CONTENT_FORMAT, COAP_OPT_BLOCK2, (ctx->blknum << 4) | blksize);
-    if (proxy) {
-        pktpos += coap_opt_put_string_with_len(pktpos, COAP_OPT_BLOCK2, COAP_OPT_PROXY_SCHEME, scheme, scheme_len, '\0');
-    }
+    int ret = -1;
+    uint8_t block1num = 0;
+    do {
 
-    if (len) {
-        /* set payload marker */
-        *pktpos++ = COAP_PAYLOAD_MARKER;
-        pkt.snips = &payload;
-    }
-    assert(pktpos < (uint8_t *)sock->hdr_buf + sizeof(sock->hdr_buf));
+        uint8_t *pktpos = sock->hdr_buf;
 
-    pkt.payload = pktpos;
-    pkt.payload_len = 0;
+        size_t blklen = len > coap_szx2size(blksize) ? coap_szx2size(blksize) : len;
 
-    return nanocoap_sock_request_cb(sock, &pkt, _block_cb, ctx);
+        iolist_t payload = {
+            .iol_base = (void *)request,
+            .iol_len  = blklen,
+        };
+
+        coap_pkt_t pkt = {
+            .hdr = (void *)pktpos,
+        };
+
+        uint16_t lastonum = 0;
+        pktpos += coap_build_hdr(pkt.hdr, COAP_TYPE_CON, token, token_len, code,
+                              nanocoap_sock_next_msg_id(sock));
+        if (proxy) {
+            pktpos += coap_opt_put_string_with_len(pktpos, lastonum, COAP_OPT_URI_HOST, host, host_len, '\0');
+            lastonum = COAP_OPT_URI_HOST;
+        }
+        pktpos += coap_opt_put_uri_pathquery(pktpos, &lastonum, path);
+        pktpos += coap_opt_put_uint(pktpos, lastonum, COAP_OPT_CONTENT_FORMAT, content_format);
+        lastonum = COAP_OPT_CONTENT_FORMAT;
+        pktpos += coap_opt_put_uint(pktpos, lastonum, COAP_OPT_BLOCK2, (ctx->blknum << 4) | blksize);
+        lastonum = COAP_OPT_BLOCK2;
+        if (len > blklen || block1num > 0) {
+            pktpos += coap_opt_put_uint(pktpos, lastonum, COAP_OPT_BLOCK1, (block1num << 4) | blksize | (len > blklen ? 0x8 : 0));
+            lastonum = COAP_OPT_BLOCK1;
+        }
+        if (proxy) {
+            pktpos += coap_opt_put_string_with_len(pktpos, lastonum, COAP_OPT_PROXY_SCHEME, scheme, scheme_len, '\0');
+            lastonum = COAP_OPT_PROXY_SCHEME;
+        }
+        assert(pktpos - (uint8_t*)pkt.hdr <= CONFIG_NANOCOAP_BLOCK_HEADER_MAX);
+
+        if (len) {
+            /* set payload marker */
+            *pktpos++ = COAP_PAYLOAD_MARKER;
+            pkt.snips = &payload;
+        }
+        assert(pktpos < (uint8_t *)sock->hdr_buf + sizeof(sock->hdr_buf));
+
+        pkt.payload = pktpos;
+        pkt.payload_len = 0;
+
+        ret = nanocoap_sock_request_cb(sock, &pkt, _block_cb, ctx);
+        if (ret < 0) {
+            return ret;
+        }
+
+        len -= blklen;
+        request += blklen;
+        block1num += 1;
+    } while (len > 0);
+
+    return 0;
 }
 
 int nanocoap_sock_block_request(coap_block_request_t *req,
